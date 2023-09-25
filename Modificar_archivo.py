@@ -14,11 +14,11 @@ hojas_eliminar = ['PREDICT', 'GRAFICAS Kwh-Bbl', 'BACKLOG 2022', 'PROTECCIONES M
 for hoja in hojas_eliminar: 
     if hoja in df1.columns: 
         df1 = df1.drop(hoja, axis=1)
-# print (df1.keys())
 
-df_filled = df1.fillna(0)
 
-df_prueba = df_filled['TRD-06']
+for hoja in df1:
+    df1.insert(0, 'Name', value= df1.index)
 
-print(df_prueba.head(20))
+print (df1)
+
 
