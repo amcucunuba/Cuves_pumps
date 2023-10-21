@@ -9,7 +9,7 @@ df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/gapmi
 app = Dash(__name__)
 
 colors = {
-    'background': '#161515',
+    'background': '#ece9e5',
     'text': '#ff7f7f'
 }
 # dataframe 
@@ -22,18 +22,37 @@ df = pd.DataFrame({
 fig = px.bar(df, x="City", y="Amount", color="Fruit", barmode="group", title="Des Fruits")
 
 # App layout
-app.layout = html.Div(children=[
-    html.H1(children='Hello Dash'),
+app.layout = html.Div(style={'backgroundColor': colors['background']}, children=[
+    html.H1(
+        children='Hello Dash',
+        style={
+            'textAlign': 'center',
+            'color': colors['text']
+        }
+    ),
 
-    html.Div(children='''
-        Dash: mon premier essaie.
-    '''),
+    html.Div(children='Dash: mon premier essaie.', style={
+        'textAlign': 'center',
+        'color': colors['text']
+    }),
 
     dcc.Graph(
-        id='example-graph',
+        id='example-graph-2',
         figure=fig
     )
-])
+ ])
+# app.layout = html.Div(children=[
+#     html.H1(children='Hello Dash'),
+
+#     html.Div(children='''
+#         Dash: mon premier essaie.
+#     '''),
+
+#     dcc.Graph(
+#         id='example-graph',
+#         figure=fig
+#     )
+# ])
 # Run the app
 if __name__ == '__main__':
     app.run(debug=True)
