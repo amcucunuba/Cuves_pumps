@@ -9,32 +9,35 @@ df = pd.read_csv('https://gist.githubusercontent.com/chriddyp/c78bf172206ce24f77
 app = Dash(__name__)
 
 app.layout = html.Div([
+
     html.Div([
-    html.H2(children='US Agriculture Exports (2011)', 
-            style= {'textAlign': 'center',
-                    'color': 'red'}),
-]),
+        html.H1("CURVES PUMPS PERENCO COLOMBIA", 
+                style= {'textAlign': 'center',
+                    'color': '#686363'}),
+        html.Img(src='Perenco.jpg')]),
 
-    dash_table.DataTable(
-    data=df.to_dict('records'),
-    columns=[{'id': c, 'name': c} for c in df.columns],
-    page_size=10, 
-    style_cell={
-        'minWidth': 95, 'maxWidth': 95, 'width': 95
-    }
-),
-    
-    dcc.Dropdown(df.columns, id = 'pandas-dropdown-1'),
-    html.Div(id= 'pandas-output-container-1')
 ])
-@callback(
-        Output('pandas-output-container-1', 'children'),
-        Input('pandas-dropdown-1', 'value')
-)
-
-def update_output(value):
-    return f'You have selected {value}'
 
 # puedo cambiar el html de salida asignando un numero de 4 cifras, sin comas ni puntos
 if __name__ == '__main__':
-    app.run(port= 5050)
+    app.run(debug=True)
+
+#    html.Div([
+#         dash_table.DataTable(
+#         data=df.to_dict('records'),
+#         columns=[{'id': c, 'name': c} for c in df.columns],
+#         page_size=10, 
+#         style_cell={'minWidth': 95, 'maxWidth': 95, 'width': 95
+#     }),
+#     ]),
+    
+#     dcc.Dropdown(df.columns, id = 'pandas-dropdown-1'),
+#     html.Div(id= 'pandas-output-container-1')
+# ])
+# @callback(
+#         Output('pandas-output-container-1', 'children'),
+#         Input('pandas-dropdown-1', 'value')
+# )
+
+# def update_output(value):
+#     return f'You have selected {value}'
