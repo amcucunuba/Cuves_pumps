@@ -19,34 +19,62 @@ documento_base = pd.read_excel(archivo_excel, sheet_name= None)
 del documento_base['PREDICT'], documento_base['GRAFICAS Kwh-Bbl'], documento_base['BACKLOG 2022'], documento_base['PROTECCIONES MURPHY'], documento_base['Medida Fondo'], documento_base['VERSION SOFTWARE'], documento_base['PLAN DE ACCION EVACUADAS'], documento_base['Sheet2']
 
 for key, hoja in documento_base.items():
+    if key == 'CNG-05':
+        hoja.drop([1], inplace=True)
     hoja.drop([0], inplace= True) #elimina la primera fila de datos
     hoja.insert(0, 'WELL', value= key)#insertar la columna con el nombre de cada pozo
     hoja.ffill(inplace=True) #rellenar los datos vacios con el numero anterior.
 
+# print(documento_base['CNG-05'])
+
+columnas = ['WELL','FECHA', 'FRECUENCIA', '% THD-VOL IN VSD', '% THD-AMP IN VSD',
+       'PF IN VSD', '% THD-VOL OUT VSD', '% THD-AMP OUT VSD', 'PF OUT VSD',
+       'VOL MTR A', 'VOL MTR B', 'VOL MTR C', 'VOL MTR A-Tierra',
+       'VOL MTR B-Tierra', 'VOL MTR C-Tierra', '% THD-AMP MTR', 'PF MTR',
+       'MAX VOL IN VSD', 'MAX AMP IN VSD', 'MAX VOL OUT VSD', 'RED KVA',
+       '%RED KVA', 'RED KW', 'MAX AMP OUT VSD', '% LOAD VSD', 'KVA VSD',
+       'KVA SUT', '% LOAD SUT', 'AMP MOTOR', '% LOAD MTR', '% DESB MTR',
+       'VOL-A CON D', 'AMP-A CON D', 'VOL-B CON D', 'AMP-B CON D',
+       'VOL-C CON D', 'AMP-C CON D', '%THD VOL CON D', '%THD AMP CON D',
+       'P.F. CON D', 'VOL-A CON Y', 'AMP-A CON Y', 'VOL-B CON Y',
+       'AMP-B CON Y', 'VOL-C CON Y', 'AMP-C CON Y', '%THD VOL CON Y',
+       '%THD AMP CON Y', 'P.F. CON Y', 'PIP (psi)', 'T Motor (F)', 'BFPD',
+       'KW-BBL']
+
+for key, hoja in documento_base.items():
+    if (col in hoja.columns for col in columnas):
+        columnas_a_eliminar = [col for col in hoja.columns if col not in columnas]
+        print (columnas_a_eliminar)
+        hoja.drop(columns=columnas_a_eliminar, inplace=True)
+
 a_eliminar = ['Unnamed: 50', 'Unnamed: 51', 'Unnamed: 52',
             'FECHA.1', 'FRECUENCIA.1', 'BWPD', 'DIFERENCIA BOPD',
-            'DIFERENCIA BWPD', 'BOPD', 'BFPD.1','Q. OIL',
+            'DIFERENCIA BWPD', 'BOPD', 'BFPD.1','Q. OIL','BFPD',
             'DIFERENCIA BFPD', '%BSW', '°API', 'NETOS', 'Q. WATER']
 for key, hoja in documento_base.items():
     columnas_a_eliminar = [col for col in a_eliminar if col in hoja.columns]
     hoja.drop(columns=columnas_a_eliminar, inplace=True)
+
+print(documento_base['CNG-05'])
 
 info_list = []
 for info in documento_base.values():
     info_list.append(info)
 
 print(type(info_list))
-# print(info_list)
 
 # Crear un dataframe a partir de lista de dataframes
 dataframe1 = pd.concat(info_list, axis=0, ignore_index=True )
+# eliminar las filas vacias si hay mas de 3 
+dataframe1= dataframe1.dropna(thresh=3)
 
 valor_a_eliminar = 'DESPUES DE INGRESAR LOS PRIMEROS DATOS BORRAR LAS CELDAS EN AMARILLO CON DELETE CELLS Y UP'
 dataframe1 = dataframe1[dataframe1['FRECUENCIA'] != valor_a_eliminar]
 
-valores_a_reemplazar = ['nd', 'BFPD 4405' ,'NO', '1211-9', 'fds', '-', 'FDS', 'cñg8d', 'ND', ' - ', '0.86|', 
+
+valores_a_reemplazar = ['nd','NO', '1211-9', 'fds', '-', 'FDS', 'cñg8d', 'ND', ' - ', '0.86|', 
                         'SIN DATOS', 'sin datos', 'o.45', "299'", 'No lectura', 'No medido', 
-                        'No registra', ' ', '                                       ', '0.6 POR 0.3']
+                        'No registra', ' ', '                                       ',]
 
 for columna in dataframe1.columns:
     if columna == 'WELL' or columna == 'FECHA':
@@ -64,5 +92,9 @@ for columna in dataframe1.columns:
     if dataframe1[columna].dtype == 'object':
         dataframe1[columna] = dataframe1[columna].astype(float)
 
+dataframe1.set_index('FECHA')
+# round(dataframe1['% LOAD MTR'])
 dataframe1.to_csv('curves_pumps_final.csv')
 print(type(dataframe1))
+
+# print(dataframe1.iloc[700:800, 0:6])
