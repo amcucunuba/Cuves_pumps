@@ -3,9 +3,11 @@ from dash import dcc
 import pandas as pd
 import datetime
 import plotly.express as px
+from main_final import data_df
 
 #importar data
-df = pd.read_csv('curves_pumps_final.csv')
+df = data_df
+# df = pd.read_csv('curves_pumps_final.csv')
 # df['FECHA'] = df['FECHA'].apply(lambda x: datetime.datetime.strptime(x.split()[0], "%Y-%m-%d").timestamp())
 # iniciar-crear la app
 app = Dash(__name__)
@@ -43,8 +45,10 @@ app.layout = html.Div([
                      {'name': 'VOL MTR C','id':'VOL MTR C' }, {'name':'RED KVA' ,'id':'RED KVA' }, 
                      {'name': 'RED KW','id':'RED KW' }, {'name': 'KVA VSD' ,'id':'KVA VSD' },
                      {'name': 'KVA SUT','id': 'KVA SUT'}, {'name': 'AMP MOTOR' ,'id':'AMP MOTOR'}, 
-                     {'name': '% LOAD MTR','id':'% LOAD MTR'}, {'name': 'PIP (psi)','id':'T Motor (F)'} 
-                     ]
+                     {'name': '% LOAD MTR','id':'% LOAD MTR'}, {'name': 'PIP (psi)','id':'PIP (psi)'},
+                     {'name': 'T Motor (F)', 'id':'T Motor (F)'}
+                     ], 
+                     style_data= {'color':'black', 'backgroundColor': 'white'},
             ),
         ),
     html.Div(

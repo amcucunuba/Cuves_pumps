@@ -23,7 +23,7 @@ for key, hoja in documento_base.items():
         hoja.drop([1], inplace=True)
     hoja.drop([0], inplace= True) #elimina la primera fila de datos
     hoja.insert(0, 'WELL', value= key)#insertar la columna con el nombre de cada pozo
-    hoja.ffill(inplace=True) #rellenar los datos vacios con el numero anterior.
+    hoja.bfill(inplace=True) #rellenar los datos vacios con el numero anterior.
 
 # print(documento_base['CNG-05'])
 
@@ -93,8 +93,22 @@ for columna in dataframe1.columns:
         dataframe1[columna] = dataframe1[columna].astype(float)
 
 dataframe1.set_index('FECHA')
-# round(dataframe1['% LOAD MTR'])
 dataframe1.to_csv('curves_pumps_final.csv')
 print(type(dataframe1))
 
+data_df = pd.read_csv('curves_pumps_final.csv')
+data_df= data_df.round({'FRECUENCIA': 1, 
+                   'PF OUT VSD': 2,
+                   'PF OUT VSD': 2, 
+                   'VOL MTR A': 0, 
+                   'VOL MTR B': 0, 
+                   'VOL MTR C': 0,
+                   'RED KVA': 1,
+                   'RED KW': 1,
+                   'KVA VSD': 1,
+                   'KVA SUT': 1,
+                   'AMP MOTOR': 0,
+                   '% LOAD MTR': 1, 
+                   'T Motor (F)': 0}, )
+print(data_df['% LOAD MTR'])
 # print(dataframe1.iloc[700:800, 0:6])
