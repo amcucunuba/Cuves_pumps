@@ -7,7 +7,6 @@ from main_final import data_df
 
 #importar data
 df = data_df
-
 # iniciar-crear la app
 app = Dash(__name__)
 
@@ -31,10 +30,23 @@ app.layout = html.Div([
         html.Label(html.H2('Choisir le well'), style= {'margin-bottom': '0.67em'}),
         html.Hr(), 
         dcc.Dropdown(options=[{'label': well, 'value': well} for well in df['WELL'].unique()], 
-                     id= 'pandas-dropdown-1',),
+                     id= 'pandas-dropdown-1', value= df['WELL'][0]),
         html.Div(id= 'pandas-output-container-1'),
         ]),
+
     html.Hr(),
+    html.Div(
+    dcc.Graph(id='graph'),
+        # dcc.Slider(
+        #     df['FECHA'].min(),
+        #     df['FECHA'].max(),
+        #     step=None,
+        #     id='FECHA--slider',
+        #     value=df['FECHA'].max(),
+        #     marks={float(fecha): fecha for fecha in df['FECHA'].unique()},
+        # ),
+    ),
+
     html.Div(
      dash_table.DataTable(
             id='data-table', 
@@ -42,7 +54,11 @@ app.layout = html.Div([
             'backgroundColor': '#d2d2d2',
             'color': 'black',
             'fontWeight': 'bold'},
-            style_data= {'color':'white', 'backgroundColor': '#969595'},
+
+            style_data= {'color':'black', 'backgroundColor': '#ffffff'},
+            style_data_conditional=[{
+            'if': {'row_index': 'odd'},
+            'backgroundColor': 'rgb(220, 220, 220)',}],
             columns=[{'name':'WELL', 'id':'WELL'}, {'name':'FECHA', 'id':'FECHA'} , {'name':'FRECUENCIA', 'id':'FRECUENCIA'},
                      {'name': 'PF IN VSD','id':'PF IN VSD'}, {'name':'PF OUT VSD','id':'PF OUT VSD' }, 
                      {'name': 'VOL MTR A','id':'VOL MTR A' }, {'name': 'VOL MTR B','id': 'VOL MTR B'},
@@ -55,26 +71,19 @@ app.layout = html.Div([
                      
             ),
         ),
-    html.Div(
-    dcc.Graph(id='graph-with-slider'),
-        # dcc.Slider(
-        #     df['FECHA'].min(),
-        #     df['FECHA'].max(),
-        #     step=None,
-        #     id='FECHA--slider',
-        #     value=df['FECHA'].max(),
-        #     marks={float(fecha): fecha for fecha in df['FECHA'].unique()},
-        # ),
-    )
 ])
 @app.callback(
     Output(component_id='data-table', component_property= 'data'),
+    Output(component_id='graph', component_property= 'figure'),
     [Input(component_id='pandas-dropdown-1', component_property= 'value')]
 )
 def update_table(selected_well):
     filtered_df = df[df['WELL'] == selected_well]
-    return filtered_df.to_dict('records')
+    return filtered_df.to_dict('records'), update_graph_line(selected_well)
 
+def update_graph_line(selected_well):
+    fig = px.line(df[df['WELL'] == selected_well],  x="FRECUENCIA", y="VOL MTR C")
+    return fig
 # puedo cambiar el html de salida asignando un numero de 4 cifras, sin comas ni puntos
 if __name__ == '__main__':
     app.run(debug=True)
