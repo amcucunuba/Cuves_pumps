@@ -7,8 +7,7 @@ from main_final import data_df
 
 #importar data
 df = data_df
-# df = pd.read_csv('curves_pumps_final.csv')
-# df['FECHA'] = df['FECHA'].apply(lambda x: datetime.datetime.strptime(x.split()[0], "%Y-%m-%d").timestamp())
+
 # iniciar-crear la app
 app = Dash(__name__)
 
@@ -38,8 +37,13 @@ app.layout = html.Div([
     html.Hr(),
     html.Div(
      dash_table.DataTable(
-            id='data-table',
-            columns=[{'name':'WELL', 'id':'WELL'}, {'name':'FRECUENCIA', 'id':'FRECUENCIA'},
+            id='data-table', 
+            style_header={'textAlign': 'center',
+            'backgroundColor': '#d2d2d2',
+            'color': 'black',
+            'fontWeight': 'bold'},
+            style_data= {'color':'white', 'backgroundColor': '#969595'},
+            columns=[{'name':'WELL', 'id':'WELL'}, {'name':'FECHA', 'id':'FECHA'} , {'name':'FRECUENCIA', 'id':'FRECUENCIA'},
                      {'name': 'PF IN VSD','id':'PF IN VSD'}, {'name':'PF OUT VSD','id':'PF OUT VSD' }, 
                      {'name': 'VOL MTR A','id':'VOL MTR A' }, {'name': 'VOL MTR B','id': 'VOL MTR B'},
                      {'name': 'VOL MTR C','id':'VOL MTR C' }, {'name':'RED KVA' ,'id':'RED KVA' }, 
@@ -48,11 +52,11 @@ app.layout = html.Div([
                      {'name': '% LOAD MTR','id':'% LOAD MTR'}, {'name': 'PIP (psi)','id':'PIP (psi)'},
                      {'name': 'T Motor (F)', 'id':'T Motor (F)'}
                      ], 
-                     style_data= {'color':'black', 'backgroundColor': 'white'},
+                     
             ),
         ),
     html.Div(
-    # dcc.Graph(id='graph-with-slider'),
+    dcc.Graph(id='graph-with-slider'),
         # dcc.Slider(
         #     df['FECHA'].min(),
         #     df['FECHA'].max(),
