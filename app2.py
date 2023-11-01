@@ -1,7 +1,7 @@
 from dash import Dash, html, dash_table, callback, Output, Input
 from dash import dcc
 import pandas as pd
-import datetime
+from datetime import datetime
 import plotly.express as px
 from main_final import data_df
 
@@ -18,7 +18,7 @@ app.layout = html.Div([
                      'background-repeat': 'repeat',
                       'background-size': 'contain',
                             },),
-        html.H1("CURVES PUMPS COLOMBIA", 
+        html.H1("Electric Submersible Pumps Colombia", 
                 style= {'textAlign': 'center',
                     'color': '#ffffff', 
                     'background-color': '#07083b',
@@ -27,7 +27,7 @@ app.layout = html.Div([
     ]),
     
     html.Div(children=[
-        html.Label(html.H2('Choisir le well'), style= {'margin-bottom': '0.67em'}),
+        html.Label(html.H2('Choose the well'), style= {'margin-bottom': '0.67em'}),
         html.Hr(), 
         dcc.Dropdown(options=[{'label': well, 'value': well} for well in df['WELL'].unique()], 
                      id= 'pandas-dropdown-1', value= df['WELL'][0]),
@@ -35,17 +35,21 @@ app.layout = html.Div([
         ]),
 
     html.Hr(),
-    html.Div(
+    html.Div([
     dcc.Graph(id='graph'),
-        # dcc.Slider(
-        #     df['FECHA'].min(),
-        #     df['FECHA'].max(),
-        #     step=None,
-        #     id='FECHA--slider',
-        #     value=df['FECHA'].max(),
-        #     marks={float(fecha): fecha for fecha in df['FECHA'].unique()},
-        # ),
-    ),
+        dcc.RangeSlider(
+            min= df['FECHA'].min().year,
+            max= df['FECHA'].max().year,
+            step= None,
+            id='FECHA--slider',
+            marks={str(year): str(year) for year in range(df['FECHA'].min().year, df['FECHA'].max().year + 1)},
+            value=[df['FECHA'].min().year, df['FECHA'].max().year],
+        ),
+    ]),
+
+    html.Div(children=[
+        html.Label(html.H2('Historial de mediciones'), style= {'margin-bottom': '0.45em'})
+    ]),
 
     html.Div(
      dash_table.DataTable(
@@ -54,7 +58,6 @@ app.layout = html.Div([
             'backgroundColor': '#d2d2d2',
             'color': 'black',
             'fontWeight': 'bold'},
-
             style_data= {'color':'black', 'backgroundColor': '#ffffff'},
             style_data_conditional=[{
             'if': {'row_index': 'odd'},
@@ -68,23 +71,29 @@ app.layout = html.Div([
                      {'name': '% LOAD MTR','id':'% LOAD MTR'}, {'name': 'PIP (psi)','id':'PIP (psi)'},
                      {'name': 'T Motor (F)', 'id':'T Motor (F)'}
                      ], 
-                     
             ),
         ),
 ])
 @app.callback(
     Output(component_id='data-table', component_property= 'data'),
     Output(component_id='graph', component_property= 'figure'),
-    [Input(component_id='pandas-dropdown-1', component_property= 'value')]
+    [Input(component_id='pandas-dropdown-1', component_property= 'value'),
+     Input(component_id='FECHA--slider', component_property='value')]
 )
-def update_table(selected_well):
+def update_table(selected_well, year_range):
     filtered_df = df[df['WELL'] == selected_well]
-    return filtered_df.to_dict('records'), update_graph_line(selected_well)
+    filtered_df = filtered_df[(filtered_df['FECHA'].dt.year >= year_range[0]) & (filtered_df['FECHA'].dt.year <= year_range[1])]
+    
+    # Llamar a la función para actualizar el gráfico
+    fig = update_graph_line(filtered_df, selected_well, year_range)
+    return filtered_df.to_dict('records'), fig
 
-def update_graph_line(selected_well):
-    fig = px.line(df[df['WELL'] == selected_well],  x="FRECUENCIA", y="VOL MTR C")
+def update_graph_line(filtered_df, selected_well, year_range):
+    # lista_variables_y = ['FRECUENCIA', 'AMP MOTOR', 'KVA VSD' ],
+    fig = px.line(filtered_df, x='FECHA', y='AMP MOTOR', 
+                  title=f'Graph for {selected_well} in the range of years {year_range[0]} - {year_range[1]}')
     return fig
-# puedo cambiar el html de salida asignando un numero de 4 cifras, sin comas ni puntos
+
 if __name__ == '__main__':
     app.run(debug=True)
 

@@ -1,5 +1,5 @@
 import pandas as pd
-from datetime import datetime
+import datetime
 from openpyxl import load_workbook
  
 
@@ -18,12 +18,13 @@ data_df= data_df.round({'FRECUENCIA': 1,
                    '% LOAD MTR': 1, 
                    'T Motor (F)': 0}, )
 
+data_df = data_df.dropna(subset=['FECHA'])
+# data_df['FECHA'] = data_df['FECHA'].apply(lambda x: datetime.datetime.strptime(x, "%Y-%m-%d").date())
+data_df['FECHA'] = pd.to_datetime(data_df['FECHA'])
 
 # for i in data_df['FECHA']:
-#     # print (f'esto es i', i)
-#     if isinstance(i, str):
-#        aa = datetime.strptime(i, '%Y-%m-%d %H:%M:%S')
-     
-#     print(i)
+    # print (f'esto es i', i)
+    # if isinstance(i, str):
+    #    aa = datetime.strptime(i, '%Y-%m-%d %H:%M:%S')
+    # print(i)
 
-# print(dataframe1.iloc[700:800, 0:6])

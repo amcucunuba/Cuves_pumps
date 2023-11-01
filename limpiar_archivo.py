@@ -88,7 +88,8 @@ def convertidor_xlsx_predictivos_a_csv (archivo_xlsx):
             
         if dataframe1[columna].dtype == 'object':
             dataframe1[columna] = dataframe1[columna].astype(float)
-
+    
+    dataframe1.reset_index(drop=False, inplace=True)
     dataframe1.to_csv('datos_predictivos_esp.csv')
     return  
 
