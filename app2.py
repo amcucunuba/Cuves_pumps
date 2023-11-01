@@ -17,63 +17,82 @@ app.layout = html.Div([
             style = {'float':'right', 
                      'background-repeat': 'repeat',
                       'background-size': 'contain',
-                            },),
+                    },
+                ),
         html.H1("Electric Submersible Pumps Colombia", 
                 style= {'textAlign': 'center',
                     'color': '#ffffff', 
                     'background-color': '#07083b',
                     'padding': '10px',
-                   }),
+                   },
+                ),
     ]),
     
-    html.Div(children=[
-        html.Label(html.H2('Choose the well'), style= {'margin-bottom': '0.67em'}),
-        html.Hr(), 
-        dcc.Dropdown(options=[{'label': well, 'value': well} for well in df['WELL'].unique()], 
-                     id= 'pandas-dropdown-1', value= df['WELL'][0]),
-        html.Div(id= 'pandas-output-container-1'),
-        ]),
-
-    html.Hr(),
     html.Div([
-    dcc.Graph(id='graph'),
-        dcc.RangeSlider(
-            min= df['FECHA'].min().year,
-            max= df['FECHA'].max().year,
-            step= None,
-            id='FECHA--slider',
-            marks={str(year): str(year) for year in range(df['FECHA'].min().year, df['FECHA'].max().year + 1)},
-            value=[df['FECHA'].min().year, df['FECHA'].max().year],
-        ),
+        dcc.Tabs([
+            dcc.Tab(label='Predictive', children=[
+                html.Div([
+                    html.Label(html.H2('Choose the well'), style={'margin-bottom': '0.67em'}),
+                    html.Hr(), 
+                    dcc.Dropdown(options=[{'label': well, 'value': well} for well in df['WELL'].unique()], 
+                                id='pandas-dropdown-1', value=df['WELL'][0]),
+                    html.Div(id='pandas-output-container-1'),
+                ]),
+                html.Hr(),
+                dcc.Graph(id='graph'),
+                dcc.RangeSlider(
+                    min=df['FECHA'].min().year,
+                    max=df['FECHA'].max().year,
+                    step=None,
+                    id='FECHA--slider',
+                    marks={str(year): str(year) for year in range(df['FECHA'].min().year, df['FECHA'].max().year + 1)},
+                    value=[df['FECHA'].min().year, df['FECHA'].max().year],
+                ),
+                html.Div([
+                    html.Label(html.H2('Historial de mediciones'), style={'margin-bottom': '0.45em'}),
+                ]),
+                dash_table.DataTable(
+                    id='data-table', 
+                    style_header={'textAlign': 'center',
+                                'backgroundColor': '#d2d2d2',
+                                'color': 'black',
+                                'fontWeight': 'bold'},
+                    style_data={'color':'black', 'backgroundColor': '#ffffff'},
+                    style_data_conditional=[{
+                        'if': {'row_index': 'odd'},
+                        'backgroundColor': 'rgb(220, 220, 220)',
+                    }],
+                    columns=[{'name':'WELL', 'id':'WELL'}, {'name':'FECHA', 'id':'FECHA'}, {'name':'FRECUENCIA', 'id':'FRECUENCIA'},
+                            {'name': 'PF IN VSD','id':'PF IN VSD'}, {'name':'PF OUT VSD','id':'PF OUT VSD'}, 
+                            {'name': 'VOL MTR A','id':'VOL MTR A'}, {'name': 'VOL MTR B','id': 'VOL MTR B'},
+                            {'name': 'VOL MTR C','id':'VOL MTR C'}, {'name':'RED KVA' ,'id':'RED KVA'}, 
+                            {'name': 'RED KW','id':'RED KW'}, {'name': 'KVA VSD' ,'id':'KVA VSD'},
+                            {'name': 'KVA SUT','id': 'KVA SUT'}, {'name': 'AMP MOTOR' ,'id':'AMP MOTOR'}, 
+                            {'name': '% LOAD MTR','id':'% LOAD MTR'}, {'name': 'PIP (psi)','id':'PIP (psi)'},
+                            {'name': 'T Motor (F)', 'id':'T Motor (F)'},
+                    ],
+                ),
+            ]),
+        dcc.Tab(label='Maps',  
+                style = {
+                    'borderBottom': '1px solid #c21010',
+                    'padding': '6px',
+                    'backgroundColor': '#119DFF',
+                    'fontWeight': 'bold',
+                    'font-size': '30px',
+                    },
+                children=[
+            html.Div([
+                html.Div([
+                    html.H4('Ubicacion de pozos'),
+                ]),
+                ]),
+            ]),
+        ]),
     ]),
 
-    html.Div(children=[
-        html.Label(html.H2('Historial de mediciones'), style= {'margin-bottom': '0.45em'})
-    ]),
-
-    html.Div(
-     dash_table.DataTable(
-            id='data-table', 
-            style_header={'textAlign': 'center',
-            'backgroundColor': '#d2d2d2',
-            'color': 'black',
-            'fontWeight': 'bold'},
-            style_data= {'color':'black', 'backgroundColor': '#ffffff'},
-            style_data_conditional=[{
-            'if': {'row_index': 'odd'},
-            'backgroundColor': 'rgb(220, 220, 220)',}],
-            columns=[{'name':'WELL', 'id':'WELL'}, {'name':'FECHA', 'id':'FECHA'} , {'name':'FRECUENCIA', 'id':'FRECUENCIA'},
-                     {'name': 'PF IN VSD','id':'PF IN VSD'}, {'name':'PF OUT VSD','id':'PF OUT VSD' }, 
-                     {'name': 'VOL MTR A','id':'VOL MTR A' }, {'name': 'VOL MTR B','id': 'VOL MTR B'},
-                     {'name': 'VOL MTR C','id':'VOL MTR C' }, {'name':'RED KVA' ,'id':'RED KVA' }, 
-                     {'name': 'RED KW','id':'RED KW' }, {'name': 'KVA VSD' ,'id':'KVA VSD' },
-                     {'name': 'KVA SUT','id': 'KVA SUT'}, {'name': 'AMP MOTOR' ,'id':'AMP MOTOR'}, 
-                     {'name': '% LOAD MTR','id':'% LOAD MTR'}, {'name': 'PIP (psi)','id':'PIP (psi)'},
-                     {'name': 'T Motor (F)', 'id':'T Motor (F)'}
-                     ], 
-            ),
-        ),
 ])
+
 @app.callback(
     Output(component_id='data-table', component_property= 'data'),
     Output(component_id='graph', component_property= 'figure'),

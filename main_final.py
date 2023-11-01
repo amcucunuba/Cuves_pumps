@@ -19,7 +19,6 @@ data_df= data_df.round({'FRECUENCIA': 1,
                    'T Motor (F)': 0}, )
 
 data_df = data_df.dropna(subset=['FECHA'])
-# data_df['FECHA'] = data_df['FECHA'].apply(lambda x: datetime.datetime.strptime(x, "%Y-%m-%d").date())
 data_df['FECHA'] = pd.to_datetime(data_df['FECHA'])
 
 # for i in data_df['FECHA']:
