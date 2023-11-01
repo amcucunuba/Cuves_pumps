@@ -61,8 +61,10 @@ def convertidor_xlsx_predictivos_a_csv (archivo_xlsx):
     dataframe1 = pd.concat(info_list, axis=0, ignore_index=True )
     # eliminar las filas vacias si hay mas de 3 
     dataframe1= dataframe1.dropna(thresh=3)
+
     dataframe1.set_index('FECHA', inplace=True)
-    dataframe1.drop(index='nd', inplace= True)
+    fechas_incorrectas = ['nd','19-11-22']
+    dataframe1.drop(index=fechas_incorrectas, inplace= True)
 
     valor_a_eliminar = 'DESPUES DE INGRESAR LOS PRIMEROS DATOS BORRAR LAS CELDAS EN AMARILLO CON DELETE CELLS Y UP'
     dataframe1 = dataframe1[dataframe1['FRECUENCIA'] != valor_a_eliminar]
