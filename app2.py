@@ -3,6 +3,7 @@ from dash import dcc
 import pandas as pd
 from datetime import datetime
 import plotly.express as px
+import plotly.graph_objects as go
 from main_final import data_df
 
 #importar data
@@ -23,7 +24,7 @@ app.layout = html.Div([
                 style= {'textAlign': 'center',
                     'color': '#ffffff', 
                     'background-color': '#07083b',
-                    'padding': '10px',
+                    'padding': '5px',
                    },
                 ),
     ]),
@@ -41,12 +42,12 @@ app.layout = html.Div([
                 html.Hr(),
                 dcc.Graph(id='graph'),
                 dcc.RangeSlider(
-                    min=df['FECHA'].min().year,
                     max=df['FECHA'].max().year,
                     step=None,
                     id='FECHA--slider',
                     marks={str(year): str(year) for year in range(df['FECHA'].min().year, df['FECHA'].max().year + 1)},
                     value=[df['FECHA'].min().year, df['FECHA'].max().year],
+                    min=df['FECHA'].min().year,
                 ),
                 html.Div([
                     html.Label(html.H2('Historial de mediciones'), style={'margin-bottom': '0.45em'}),
@@ -76,7 +77,7 @@ app.layout = html.Div([
         dcc.Tab(label='Maps',  
                 style = {
                     'borderBottom': '1px solid #c21010',
-                    'padding': '6px',
+                    'padding': '5px',
                     'backgroundColor': '#119DFF',
                     'fontWeight': 'bold',
                     'font-size': '30px',
@@ -100,7 +101,10 @@ app.layout = html.Div([
      Input(component_id='FECHA--slider', component_property='value')]
 )
 def update_table(selected_well, year_range):
+    #Primer filtro del df de acuerdo con el pozo seleccionado 
     filtered_df = df[df['WELL'] == selected_well]
+    
+    #2do. filtro del df de acuerdo con la fecha seleccionada
     filtered_df = filtered_df[(filtered_df['FECHA'].dt.year >= year_range[0]) & (filtered_df['FECHA'].dt.year <= year_range[1])]
     
     # Llamar a la función para actualizar el gráfico
@@ -108,9 +112,39 @@ def update_table(selected_well, year_range):
     return filtered_df.to_dict('records'), fig
 
 def update_graph_line(filtered_df, selected_well, year_range):
-    # lista_variables_y = ['FRECUENCIA', 'AMP MOTOR', 'KVA VSD' ],
-    fig = px.line(filtered_df, x='FECHA', y='AMP MOTOR', 
-                  title=f'Graph for {selected_well} in the range of years {year_range[0]} - {year_range[1]}')
+    #Filtar el dfde acuerdo al pozo seleccionado
+    filtered_df = filtered_df[(filtered_df['FECHA'].dt.year >= year_range[0]) & (filtered_df['FECHA'].dt.year <= year_range[1])]
+    #Filtro de fecha, min y max de acuerdo al pozo, para ajustar en el titulo de la gráfica
+    years_range = (filtered_df['FECHA'].min().year, filtered_df['FECHA'].max().year)
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(x=filtered_df['FECHA'], 
+                             y=filtered_df['FRECUENCIA'],
+                             name="FRECUENCIA", 
+                             mode='lines+markers',
+                            #  line=dict(color="paleturquoise", width=2),
+                             marker=dict(size=8),
+                             ))
+    
+    fig.add_trace(go.Scatter(x=filtered_df['FECHA'], 
+                             y=filtered_df['VOL MTR A'], 
+                             name="VOL MTR A", 
+                             yaxis="y2", 
+                             mode='lines+markers',
+                            #  marker=dict(color="crimson")
+                             ))
+
+    fig.update_layout(title=f'Graph for {selected_well} in the range of years {years_range}',
+        xaxis_title='FECHA',
+        yaxis_title='Valores',
+        yaxis2=dict(
+            title="yaxis2 title",
+            overlaying="y",
+            side="right",
+             ),
+        template= 'ggplot2',
+        )
     return fig
 
 if __name__ == '__main__':
