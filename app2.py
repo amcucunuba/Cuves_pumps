@@ -8,26 +8,40 @@ from main_final import data_df
 
 #importar data
 df = data_df
+df_deptos = pd.read_csv('deptos.csv', delimiter=';', encoding='latin-1')
+df_deptos['etiqueta'] = 'Departamento: ' + df_deptos['DEPARTAMENTO'] + '<br>Actividad: ' + df_deptos['ACTIVIDAD']
+
+
 # iniciar-crear la app
 app = Dash(__name__)
 
+banner_style = {
+    'background-color':'#07083b',
+    'padding': '10px',
+    'color': 'white',
+    'display': 'flex',
+    'align-items': 'center', 
+    'textAlign': 'rigth',
+    'color': '#ffffff', 
+    'height': '60px',
+    'justify-content': 'space-between',  # Para alinear la imagen a la derecha
+    'justify-items': 'center',
+    }
+
+# Estilo de la imagen
+image_style = {'width': '90px',
+    'height': '70px',}
+
 app.layout = html.Div([
     html.Div([
-        html.Img(src='https://us.123rf.com/450wm/grgroup/grgroup1611/grgroup161100278/64919022-ic%C3%B4ne-de-la-tour-de-l-usine-de-p%C3%A9trole-sur-fond-blanc-illustration-vectorielle.jpg?ver=6',  
-            width="90", height="70", 
-            style = {'float':'right', 
-                     'background-repeat': 'repeat',
-                      'background-size': 'contain',
-                    },
-                ),
         html.H1("Electric Submersible Pumps Colombia", 
-                style= {'textAlign': 'center',
-                    'color': '#ffffff', 
-                    'background-color': '#07083b',
-                    'padding': '5px',
-                   },
+                style= {'margin': '0'}
+               ),        
+            html.Img(src='https://us.123rf.com/450wm/grgroup/grgroup1611/grgroup161100278/64919022-ic%C3%B4ne-de-la-tour-de-l-usine-de-p%C3%A9trole-sur-fond-blanc-illustration-vectorielle.jpg?ver=6',
+            style= image_style,
                 ),
-    ]),
+            ],      
+            style=banner_style),
     
     html.Div([
         dcc.Tabs([
@@ -87,6 +101,17 @@ app.layout = html.Div([
                 html.Div([
                     html.H4('Ubicacion de pozos'),
                 ]),
+                dcc.Dropdown(id="slct_state",
+                            options=[{'label': state, 'value': state} for state in df_deptos['DEPARTAMENTO'].unique()],
+                            multi=False,
+                            value= df_deptos['DEPARTAMENTO'][0],
+                            ),
+
+                html.Div(id='output_container', children=[]),
+                html.Br(),
+
+                dcc.Graph(id='my_dept_map', figure={})
+                
                 ]),
             ]),
         ]),
@@ -132,9 +157,15 @@ def update_graph_line(filtered_df, selected_well, year_range):
                              name="VOL MTR A", 
                              yaxis="y2", 
                              mode='lines+markers',
-                            #  marker=dict(color="crimson")
                              ))
 
+    fig.add_trace(go.Scatter(x=filtered_df['FECHA'], 
+                             y=filtered_df['KVA VSD'], 
+                             name="KVA VSD", 
+                             yaxis="y3", 
+                             mode='lines+markers',
+                             ))
+    
     fig.update_layout(title=f'Graph for {selected_well} in the range of years {years_range}',
         xaxis_title='FECHA',
         yaxis_title='Valores',
@@ -143,10 +174,48 @@ def update_graph_line(filtered_df, selected_well, year_range):
             overlaying="y",
             side="right",
              ),
+        yaxis3=dict(
+            title="yaxis3 title",
+            overlaying="y", 
+            anchor="free",
+            autoshift=True,
+             ),
         template= 'ggplot2',
         )
     return fig
 
+@app.callback(
+    [Output(component_id='output_container', component_property='children'),
+     Output(component_id='my_dept_map', component_property='figure')],
+    [Input(component_id='slct_state', component_property='value')]
+)
+def update_graph(option_slctd):
+    container = "The year chosen by user was: {}".format(option_slctd)
+   
+    fig = px.scatter_geo(
+        df_deptos,
+        lat='LATITUD',
+        lon='LONGITUD',
+        text='DEPARTAMENTO',
+        color='ACTIVIDAD',
+    )
+    
+    fig.update_geos(
+        center=dict(lat=4.0, lon=-74.0),
+        showcoastlines=True,
+        visible=False, resolution=110,
+        showcountries=True,
+        projection_scale=10,
+        showland=False,
+        landcolor="LightGreen",
+        showocean=True,
+        oceancolor="LightBlue",
+    )
+        
+    fig.update_layout(height=600, margin={"r":0,"t":0,"l":10,"b":0})
+
+    return container, fig
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, )
 

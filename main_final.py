@@ -20,6 +20,7 @@ data_df= data_df.round({'FRECUENCIA': 1,
 
 data_df = data_df.dropna(subset=['FECHA'])
 data_df['FECHA'] = pd.to_datetime(data_df['FECHA'])
+data_df = data_df.sort_values(by='FECHA', ascending=False)
 
 # for i in data_df['FECHA']:
     # print (f'esto es i', i)
