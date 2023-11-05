@@ -9,7 +9,6 @@ from main_final import data_df
 #importar data
 df = data_df
 df_deptos = pd.read_csv('deptos.csv', delimiter=';', encoding='latin-1')
-df_deptos['etiqueta'] = 'Departamento: ' + df_deptos['DEPARTAMENTO'] + '<br>Actividad: ' + df_deptos['ACTIVIDAD']
 
 
 # iniciar-crear la app
@@ -148,8 +147,7 @@ def update_graph_line(filtered_df, selected_well, year_range):
                              y=filtered_df['FRECUENCIA'],
                              name="FRECUENCIA", 
                              mode='lines+markers',
-                            #  line=dict(color="paleturquoise", width=2),
-                             marker=dict(size=8),
+                             marker=dict(size=4),
                              ))
     
     fig.add_trace(go.Scatter(x=filtered_df['FECHA'], 
@@ -166,6 +164,55 @@ def update_graph_line(filtered_df, selected_well, year_range):
                              mode='lines+markers',
                              ))
     
+    fig.add_trace(go.Scatter(x=filtered_df['FECHA'], 
+                             y=filtered_df['PF OUT VSD'], 
+                             name="PF OUT VSD", 
+                             yaxis="y4", 
+                             mode='lines+markers',
+                             ))
+
+    fig.add_trace(go.Scatter(x=filtered_df['FECHA'], 
+                             y=filtered_df['PF IN VSD'], 
+                             name="PF IN VSD", 
+                             yaxis="y5", 
+                             mode='lines+markers',
+                             ))
+
+    fig.add_trace(go.Scatter(x=filtered_df['FECHA'], 
+                             y=filtered_df['VOL MTR B'], 
+                             name="VOL MTR B", 
+                             yaxis="y6", 
+                             mode='lines+markers',
+                             ))
+    
+    fig.add_trace(go.Scatter(x=filtered_df['FECHA'], 
+                             y=filtered_df['VOL MTR C'], 
+                             name="VOL MTR C", 
+                             yaxis="y7", 
+                             mode='lines+markers',
+                             ))
+    
+    fig.add_trace(go.Scatter(x=filtered_df['FECHA'], 
+                             y=filtered_df['RED KVA'], 
+                             name="RED KVA", 
+                             yaxis="y8", 
+                             mode='lines+markers',
+                             ))
+    
+    fig.add_trace(go.Scatter(x=filtered_df['FECHA'], 
+                             y=filtered_df['RED KW'], 
+                             name="RED KW", 
+                             yaxis="y9", 
+                             mode='lines+markers',
+                             ))
+
+    fig.add_trace(go.Scatter(x=filtered_df['FECHA'], 
+                             y=filtered_df['KVA SUT'], 
+                             name="KVA SUT", 
+                             yaxis="y10", 
+                             mode='lines+markers',
+                             ))
+
     fig.update_layout(title=f'Graph for {selected_well} in the range of years {years_range}',
         xaxis_title='FECHA',
         yaxis_title='Valores',
@@ -176,6 +223,48 @@ def update_graph_line(filtered_df, selected_well, year_range):
              ),
         yaxis3=dict(
             title="yaxis3 title",
+            overlaying="y", 
+            anchor="free",
+            autoshift=True,
+             ),
+        yaxis4=dict(
+            title="yaxis4 title",
+            overlaying="y", 
+            anchor="free",
+            side="right",
+             ),
+        yaxis5=dict(
+            title="yaxis5 title",
+            overlaying="y", 
+            anchor="free",
+            autoshift=True,
+             ),
+        yaxis6=dict(
+            title="yaxis6 title",
+            overlaying="y", 
+            anchor="free",
+            autoshift=True,
+             ),
+        yaxis7=dict(
+            title="yaxis7 title",
+            overlaying="y", 
+            anchor="free",
+            autoshift=True,
+             ),
+        yaxis8=dict(
+            title="yaxis8 title",
+            overlaying="y", 
+            anchor="free",
+            autoshift=True,
+             ),
+        yaxis9=dict(
+            title="yaxis9 title",
+            overlaying="y", 
+            anchor="free",
+            autoshift=True,
+             ),
+        yaxis10=dict(
+            title="yaxis10 title",
             overlaying="y", 
             anchor="free",
             autoshift=True,
@@ -191,28 +280,39 @@ def update_graph_line(filtered_df, selected_well, year_range):
 )
 def update_graph(option_slctd):
     container = "The year chosen by user was: {}".format(option_slctd)
-   
-    fig = px.scatter_geo(
-        df_deptos,
-        lat='LATITUD',
-        lon='LONGITUD',
-        text='DEPARTAMENTO',
-        color='ACTIVIDAD',
-    )
     
-    fig.update_geos(
-        center=dict(lat=4.0, lon=-74.0),
-        showcoastlines=True,
-        visible=False, resolution=110,
-        showcountries=True,
-        projection_scale=10,
-        showland=False,
-        landcolor="LightGreen",
-        showocean=True,
-        oceancolor="LightBlue",
+    color_mapping = {
+    "Act": "green",
+    "No_act": "red",}
+
+    fig = go.Figure(go.Scattermapbox(
+        lat=df_deptos['LATITUD'],
+        lon=df_deptos['LONGITUD'],
+        mode='markers',
+        text=df_deptos['DEPARTAMENTO'],  # Esto configura el texto en la etiqueta emergente
+        hovertext=df_deptos['DEPARTAMENTO'] + '<br>'  + df_deptos['ACTIVIDAD'],
+        marker= go.scattermapbox.Marker(
+            size=9,
+            color=[color_mapping[act] for act in df_deptos['ACTIVIDAD']]
+        ),
+    ))
+    
+    fig.update_layout(
+            mapbox=dict(
+            center=dict(lat=4.0, lon=-74.0),
+            style= 'open-street-map',
+            zoom=4.5,
+            ),
+        legend= dict(x=3,  # Ajusta la posición en el eje X
+                y=3,   # Ajusta la posición en el eje Y
+    ),
+
     )
         
-    fig.update_layout(height=600, margin={"r":0,"t":0,"l":10,"b":0})
+    fig.update_layout(height=600, 
+                    margin={"r":25,"t":25,"l":10,"b":10}
+                      )
+    
 
     return container, fig
 
