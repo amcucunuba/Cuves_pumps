@@ -213,7 +213,7 @@ def update_graph_line(filtered_df, selected_well, year_range):
                              mode='lines+markers',
                              ))
 
-    fig.update_layout(title=f'Graph for {selected_well} in the range of years {years_range}',
+    fig.update_layout(
         xaxis_title='FECHA',
         yaxis_title='Valores',
         yaxis2=dict(
@@ -232,6 +232,7 @@ def update_graph_line(filtered_df, selected_well, year_range):
             overlaying="y", 
             anchor="free",
             side="right",
+            position= 0.15,
              ),
         yaxis5=dict(
             title="yaxis5 title",
@@ -267,10 +268,16 @@ def update_graph_line(filtered_df, selected_well, year_range):
             title="yaxis10 title",
             overlaying="y", 
             anchor="free",
-            autoshift=True,
-             ),
+            position=0.85,
+            side="right",
+            ),
         template= 'ggplot2',
         )
+    fig.update_layout(title=f'Graph for {selected_well} in the range of years {years_range}',
+                    legend= dict(orientation='h'),
+                    )
+    fig.update_yaxes(showline=True, linecolor='black', linewidth=1, mirror=True)
+    
     return fig
 
 @app.callback(
