@@ -9,6 +9,8 @@ from main_final import data_df
 
 #importar data
 df = data_df
+df_grouped = df.groupby([df['FECHA'].dt.year, 'WELL']).agg({'RED KW': 'sum'}).reset_index()
+
 df_deptos = pd.read_csv('deptos.csv', delimiter=';', encoding='latin-1')
 
 # iniciar-crear la app
@@ -18,14 +20,14 @@ app.layout = html.Div([
     html.Div([
         html.Div([        
             html.Img(src= ("assets/Artua-Wall-E-Wall-e.256.png"),
-                className= "one-third column", 
-                id='corona-image', 
+                            id='corona-image', 
                 style={'width': 'auto', 
                         'height': '100px', 
                         "margin-bottom": "10px",
+                        'align-items': 'right',
                         }
                         ),
-                ]), 
+                ],className= "one-third column" ), 
         html.Div([
             html.H2("Electric Submersible Pumps", style={"margin-bottom": "0px", 
                            'color': 'white',
@@ -36,7 +38,7 @@ app.layout = html.Div([
 
         html.Div([
             html.P('Last Updated: ' + str(df['FECHA'].iloc[0].strftime("%B %d, %Y")) + '  00:01 (UTC)',
-                    style={'color': 'orange', "margin-bottom": "0px",}),
+                    style={'color': 'orange', "margin-bottom": "0px", 'fontSize': 10}),
                     ], className="one-third column", id='title1'),
 
             ],id="header", className="row flex-display", style={"margin-bottom": "10px"}),
@@ -45,7 +47,7 @@ app.layout = html.Div([
         html.Div([
         html.Div([
             html.H6('Choose the well', className='fix_label',  
-                    style={'margin-bottom': '0px',
+                    style={'margin-bottom': '-10px',
                            'textAlign': 'left',
                            'color': 'white'},
                     ), 
@@ -61,88 +63,68 @@ app.layout = html.Div([
 
     html.Div([
         html.Div([
-            html.H6(children='Promedio Frecuencia.',
+            html.P(children='Frecuencia.',
                     style={'textAlign': 'center',
-                        'color': 'white'}
+                        'color': 'white',
+                        'fontSize': 18}
                     ),
             html.P(id='card-container-1-value',
                    style={'textAlign': 'center',
                        'color': 'orange',
-                       'fontSize': 40}
-                   ),
-            html.P('Para el pozo seleccionado',
-                   style={'textAlign': 'center',
-                       'color': 'orange',
-                       'fontSize': 15,
+                       'fontSize': 30,
                        'margin-top': '-18px'}
-                   )], className="card_container four columns",
+                   ),
+           ], className="create_container three columns",
         ),
 
         html.Div([
-            html.H6(children='Promedio no. 2, RED KVA',
+            html.P(children='Red kVA',
                     style={'textAlign': 'center',
-                        'color': 'white'}
+                        'color': 'white',
+                        'fontSize': 18}
                     ),
 
             html.P(id='card-container-2-value',
-                   style={
-                       'textAlign': 'center',
+                   style={'textAlign': 'center',
                        'color': '#dd1e35',
-                       'fontSize': 40}
-                   ),
-
-            html.P('y nounou',
-                   style={
-                       'textAlign': 'center',
-                       'color': '#dd1e35',
-                       'fontSize': 15,
+                       'fontSize': 30,
                        'margin-top': '-18px'}
-                   )], className="card_container four columns",
+                   ),
+            ], className="create_container three columns",
                     ),
         html.Div([
-            html.H6(children='Promedio no. 3',
-                    style={
-                        'textAlign': 'center',
-                        'color': 'white'}
+            html.P(children='Vol MTR C',
+                    style={'textAlign': 'center',
+                        'color': 'white',
+                        'fontSize': 18}
                     ),
 
             html.P(id='card-container-3-value',
                    style={
                        'textAlign': 'center',
                        'color': '#dd611e',
-                       'fontSize': 40}
-                   ),
-
-            html.P('y nounou',
-                   style={
-                       'textAlign': 'center',
-                       'color': '#dd611e',
-                       'fontSize': 15,
+                       'fontSize': 30,
                        'margin-top': '-18px'}
-                   )], className="card_container four columns",
+                   ),
+        ], className="create_container three columns",
                     ),
 
         html.Div([
-            html.H6(children='Promedio %T MOTOR',
+            html.P(children='%T MOTOR',
                     style={
                         'textAlign': 'center',
-                        'color': 'white'}
+                        'color': 'white',
+                        'fontSize': 18}
                     ),
 
             html.P(id='card-container-4-value',
                    style={
                        'textAlign': 'center',
                        'color': 'green',
-                       'fontSize': 40}
-                   ),
-
-            html.P('casi esposa',
-                   style={
-                       'textAlign': 'center',
-                       'color': 'green',
-                       'fontSize': 15,
+                       'fontSize': 30, 
                        'margin-top': '-18px'}
-                   )], className="card_container four columns",
+                   ),
+            ], className="create_container three columns",
                  ),
                ],className="row flex-display", style={"margin-bottom": "5px"}),
 
@@ -165,7 +147,7 @@ app.layout = html.Div([
 
     html.Div([ 
         html.Div([
-                html.H6(children='Ubicacion de pozos',
+                html.H6(children='Well location',
                     style={'textAlign': 'left',
                         'color': 'white'}
                     ),
@@ -175,20 +157,46 @@ app.layout = html.Div([
                             value= df_deptos['DEPARTAMENTO'][0],
                             className='dcc_compon',),   
           dcc.Graph(id='my_dept_map', figure={})], className="create_container1 six columns"),
+          html.Div([ 
+            html.Div([
+                     html.H6('Ultimate well power',
+                   style = {'color': 'white'},
+                   className = 'drop_down_list_title'
+                   ),
+            dcc.Dropdown(id = 'select_year',
+                         multi = False,
+                         clearable = True,
+                         disabled = False,
+                         style = {'display': True},
+                          value = 'Select year',
+                         placeholder = 'Select year',
+                         options = [{'label': year, 'value': year} for year in df['FECHA'].dt.year.unique()],
+                         className = 'drop_down_list'),
+                     ], className = 'title_drop_down_list'),
+                     dcc.Graph(id='stack_bar_chart', figure={}, config = {'displayModeBar': False})
+                ], className = "create_container1 six columns"),
+
             ], className="row flex-display"),
 
+    
     html.Div([
         html.Div([
             html.H5('Measurement Track Record', style={'margin-bottom': '0.45em', 'color': 'white'}),
                 html.Div([
                     dash_table.DataTable(
                     id='data-table', 
-                    style_table={'width': '100%'},
+                    style_table={'width': '100%',
+                                 },
                     style_header={'textAlign': 'center',
                                 'backgroundColor': 'rgb(210, 210, 210)',
                                 'color': 'black',
-                                'fontWeight': 'bold'},
-                    style_data={'color':'black', 'backgroundColor': 'rgb(255, 255, 255)'},
+                                'fontWeight': 'bold',
+                                'font-family': 'Arial',
+                                'fontSize': 12
+                                },
+                    style_data={'color':'black', 'backgroundColor': 'rgb(255, 255, 255)', 
+                                'font-family': 'Arial',
+                                'fontSize': 12},
                     style_data_conditional=[{'if': {'row_index': 'odd'},
                                         'backgroundColor': 'rgb(220, 220, 220)',
                                         }],
@@ -208,6 +216,8 @@ app.layout = html.Div([
 
     ], id="mainContainer",
     style={"display": "flex", "flex-direction": "column"})
+
+
 @app.callback(
     [Output('card-container-1-value', 'children'),
      Output('card-container-2-value', 'children'),
@@ -223,17 +233,17 @@ def update_card_container(selected_well, year_range):
     #2do. filtro del df de acuerdo con la fecha seleccionada
     filtered_df = filtered_df[(filtered_df['FECHA'].dt.year >= year_range[0]) & (filtered_df['FECHA'].dt.year <= year_range[1])]
     
-    avg_frecuencia = filtered_df['FRECUENCIA'].mean()
-    card_content_1_value = [html.P(f"{avg_frecuencia:,.0f}")]
+    avg_frecuencia = filtered_df['FRECUENCIA'].iloc[0]
+    card_content_1_value = [html.P(f"{avg_frecuencia:,.0f} Hz")]
 
-    avg_red_kva= filtered_df['RED KVA'].mean()
-    card_content_2_value = [html.P(f"{avg_red_kva:,.0f}")]
+    avg_red_kva= filtered_df['RED KVA'].iloc[0]
+    card_content_2_value = [html.P(f"{avg_red_kva:,.0f} kVA")]
 
-    avg_vol_mtr_c= filtered_df['VOL MTR C'].mean()
-    card_content_3_value = [html.P(f"{avg_vol_mtr_c:,.0f}")]
+    avg_vol_mtr_c= filtered_df['VOL MTR C'].iloc[0]
+    card_content_3_value = [html.P(f"{avg_vol_mtr_c:,.0f} V")]
 
-    avg_t_motor= filtered_df['T Motor (F)'].mean()
-    card_content_4_value = [html.P(f"{avg_t_motor:,.0f}")]
+    avg_t_motor= filtered_df['T Motor (F)'].iloc[0]
+    card_content_4_value = [html.P(f"{avg_t_motor:,.0f} ºF")]
     
     # Llamar a la función para actualizar el dato   
     return card_content_1_value, card_content_2_value, card_content_3_value, card_content_4_value
@@ -252,7 +262,6 @@ def update_table(selected_well, year_range):
     #2do. filtro del df de acuerdo con la fecha seleccionada
     filtered_df = filtered_df[(filtered_df['FECHA'].dt.year >= year_range[0]) & (filtered_df['FECHA'].dt.year <= year_range[1])]
     
-    avg_frecuencia = filtered_df['FRECUENCIA'].mean()
     # card_content_1_value = [html.P(f"Promedio Frecuencia: {avg_frecuencia:,.0f}")]
     
     # Llamar a la función para actualizar el gráfico
@@ -288,6 +297,7 @@ def update_graph_line(filtered_df, selected_well, year_range):
                              y=filtered_df['KVA VSD'], 
                              name="KVA VSD", 
                              yaxis="y3", 
+                             mode='lines+markers',
                              marker=dict(size=4),
                              ))
     
@@ -312,7 +322,7 @@ def update_graph_line(filtered_df, selected_well, year_range):
                              name="VOL MTR B", 
                              yaxis="y6", 
                              mode='lines+markers',
-                             marker=dict(size=4),
+                             marker=dict(size=4)
                              ))
     
     fig.add_trace(go.Scatter(x=filtered_df['FECHA'], 
@@ -355,10 +365,10 @@ def update_graph_line(filtered_df, selected_well, year_range):
                              ))
     fig.add_trace(go.Scatter(x=filtered_df['FECHA'], 
                              y=filtered_df['T Motor (F)'], 
+                             mode='lines+markers',
                              name="T Motor (F)", 
                              yaxis="y12", 
-                             mode='lines+markers',
-                             marker=dict(size=4),
+                            marker=dict(size=4),
                              ))
 
     fig.update_layout(
@@ -384,7 +394,8 @@ def update_graph_line(filtered_df, selected_well, year_range):
             titlefont=dict(color="#ca2323"
                         ),
             tickfont=dict(color="#ca2323",
-                        )
+                        ),
+            domain=[0.45, 0.7]
             ),
         yaxis3=dict(
             title="KVA VSD",
@@ -395,7 +406,7 @@ def update_graph_line(filtered_df, selected_well, year_range):
                         ),
             tickfont=dict(color="#05aa68",
                         ),
-            domain=[0.15, 0.4],
+            domain=[0.45, 0.7],
              ),
         yaxis4=dict(
             title="PF Out VSD",
@@ -451,17 +462,19 @@ def update_graph_line(filtered_df, selected_well, year_range):
             autoshift=True,
             titlefont=dict( color="#3da303"
                                ),
-            tickfont=dict(color="#3da303")
+            tickfont=dict(color="#3da303"),
+            domain=[0.45, 0.7]
              ),
         yaxis9=dict(
             title="Red KW",
             overlaying="y", 
             anchor="free",
-            side="left",
+            side="right",
             autoshift=True,
             titlefont=dict( color="#e56c6c"
                                ),
-            tickfont=dict(color="#e56c6c")
+            tickfont=dict(color="#e56c6c"),
+             domain=[0.45, 0.7]
              ),
         yaxis10=dict(
             title="KVA SUT",
@@ -478,7 +491,7 @@ def update_graph_line(filtered_df, selected_well, year_range):
             title="% LOAD MTR",
             overlaying="y", 
             anchor="free",
-            side="left",
+            side="right",
             autoshift=True,
             titlefont=dict( color="#cd9ee1"
                                ),
@@ -493,16 +506,31 @@ def update_graph_line(filtered_df, selected_well, year_range):
             autoshift=True,
             titlefont=dict( color="#d9680c"
                                ),
-            tickfont=dict(color="#d9680c")
+            tickfont=dict(color="#d9680c"),
+            domain=[0.45, 0.7]
              ),
             )
-
+    hover_text = ('<b>Fecha</b>: %{x} <br>' +
+        '<b>FRECUENCIA</b>: %{y} <br>' +
+        '<b>VOL MTR A</b>: %{yaxis2} <br>' +
+        '<b>KVA VSD</b>: %{yaxis3} <br>' +
+        '<b>PF OUT VSD</b>: %{yaxis4} <br>' +
+        '<b>PF IN VSD</b>: %{yaxis5} <br>' +
+        '<b>VOL MTR B</b>: %{yaxis6} <br>' +
+        '<b>VOL MTR C</b>: %{yaxis7} <br>' +
+        '<b>RED KVA</b>: %{yaxis8} <br>' +
+        '<b>RED KW</b>: %{yaxis9} <br>' +
+        '<b>KVA SUT</b>: %{yaxis10} <br>' +
+        '<b>% LOAD MTR</b>: %{yaxis11} <br>' +
+        '<b>T Motor (F)</b>: %{yaxis12} <br>'),
+                    
     fig.update_layout(title=f'Graph for {selected_well} in the range of years {years_range}',
                     plot_bgcolor='#1f2c56',
                     paper_bgcolor='#1f2c56',
                     hovermode='closest',
                     titlefont={'color': 'white',
-                        'size': 20, },
+                        'size': 18, },
+                    # hovertemplate= hover_text,
                     legend= dict(orientation='h',
                                 xanchor= 'center',
                                 bgcolor ='#1f2c56',
@@ -515,11 +543,11 @@ def update_graph_line(filtered_df, selected_well, year_range):
     
     fig.update_xaxes(showgrid=False, showline=True, linecolor='grey', tickfont=dict(
                            family='Arial',
-                           size=12,))
+                           size=10,))
 
     fig.update_yaxes(showgrid=False, showline=True, linecolor='white', mirror=True, tickfont=dict(
                            family='Arial',
-                           size=12,))
+                           size=10,))
     
     return fig
 
@@ -553,18 +581,81 @@ def update_graph(option_slctd):
     fig.update_layout(
             mapbox=dict(
                 center=dict(lat=4.0, lon=-74.0),
-                style= 'carto-positron',
+                style= 'carto-darkmatter',
                 zoom=4, 
             ) )
     
-    fig.update_layout(legend= dict(x=3,  # Ajusta la posición en el eje X
-                                y=3,   # Ajusta la posición en el eje Y
-                                ),)
+    fig.update_layout(plot_bgcolor='#1f2c56',
+                    paper_bgcolor='#1f2c56',)
         
-    fig.update_layout(height=400, 
+    fig.update_layout(height=500, 
                     margin={"r":50,"t":25,"l":10,"b":10},
                     )
     
+    return fig
+@app.callback(
+    Output(component_id='stack_bar_chart', component_property='figure'),
+    [Input(component_id='select_year', component_property='value')]
+)
+def update_fig_bar(selected_year):
+    filtered_df = df[df['FECHA'].dt.year == selected_year]
+
+    last_values_df = filtered_df.groupby('WELL').last().reset_index()
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Bar(x=last_values_df['RED KW'], 
+                         y=last_values_df['WELL'], 
+                         orientation='h', 
+                         textposition = 'auto',
+                         text=last_values_df['RED KW'], 
+                         hoverinfo = 'text',
+                         hovertext =
+                            '<b>Well</b>: ' + last_values_df['WELL'].astype(str) + '<br>' +
+                            '<b>Red Kw</b>: ' + last_values_df['RED KW'].astype(str) + '<br>', 
+                         marker=dict(color='#950808'),
+                         textfont = dict(
+                                family = "sans-serif",
+                                size = 12,
+                                color = 'white'),
+                         name=f'Año {selected_year}'))
+
+    fig.update_layout(barmode='stack', 
+                    # title=f'Power of wells by {selected_year}', 
+                    margin = dict(t = 28, r = 0, l = 0),
+                    xaxis=dict(title = '<b>Red kW<b>',
+                            showline=True,
+                            showgrid=True,
+                            showticklabels=True,
+                            linecolor='white',
+                            linewidth=1,
+                            tickfont=dict(family='Arial',
+                                size=10,
+                                color='white'
+                            )),
+                    yaxis=dict(title = '<b>Wells<b>',
+                            categoryorder='total descending',
+                            visible = True,
+                            color = 'white',
+                            showline = False,
+                            showgrid = False,
+                            showticklabels = True,
+                            linecolor = 'white',
+                            linewidth = 1,), 
+
+                        hovermode='closest', 
+                        plot_bgcolor='#1f2c56',
+                        paper_bgcolor='#1f2c56',
+                        legend={'orientation': 'h',
+                              'bgcolor': '#1f2c56',
+                              'xanchor': 'center', 'x': 0.5, 'y': -0.3},
+                        titlefont={
+                        'color': 'white',
+                        'size': 18,
+                        },
+                        height=500,
+                          )
+
     return fig
 
 if __name__ == '__main__':
