@@ -6,7 +6,7 @@ def convertidor_xlsm_predictivos_a_xlsx (archivo_xlsm):
 # Cargar el archivo .xlsm
     workbook = load_workbook(archivo_xlsm, keep_vba=False)  # Establece keep_vba en False para eliminar las macros
 # # Guardar el archivo como .xlsx
-    archivo_nuevo_xlsx = 'archivo.xlsx'
+    archivo_nuevo_xlsx = 'archivo_2.xlsx'
     workbook.save(archivo_nuevo_xlsx)
     return
 
@@ -24,7 +24,7 @@ def convertidor_xlsx_predictivos_a_csv (archivo_xlsx):
         for mal_fecha in hoja['FECHA']:
             if mal_fecha == '':
                 hoja.dropna(thresh=1, inplace= True)
-
+    print(documento_base)
     columnas = ['WELL','FECHA', 'FRECUENCIA', '% THD-VOL IN VSD', '% THD-AMP IN VSD',
         'PF IN VSD', '% THD-VOL OUT VSD', '% THD-AMP OUT VSD', 'PF OUT VSD',
         'VOL MTR A', 'VOL MTR B', 'VOL MTR C', 'VOL MTR A-Tierra',
@@ -88,14 +88,14 @@ def convertidor_xlsx_predictivos_a_csv (archivo_xlsx):
             
         if dataframe1[columna].dtype == 'object':
             dataframe1[columna] = dataframe1[columna].astype(float)
-    
+    print(dataframe1)
     dataframe1.reset_index(drop=False, inplace=True)
-    dataframe1.to_csv('datos_predictivos_esp.csv')
+    dataframe1.to_csv('datos_predictivos_esp_2.csv')
     return  
 
 
 if __name__ == '__main__' : 
     # print(convertidor_xlsm_predictivos_a_xlsx ('PREDIC_SET.xlsm'))
     # print(type(convertidor_xlsm_predictivos_a_xlsx ('PREDIC_SET.xlsm')))
-    convertidor_xlsm_predictivos_a_xlsx ('PREDIC_SET.xlsm')
-    convertidor_xlsx_predictivos_a_csv ('archivo.xlsx')
+    # convertidor_xlsm_predictivos_a_xlsx ('PREDIC_SET_2.xlsm')
+    convertidor_xlsx_predictivos_a_csv ('archivo_2.xlsx')
