@@ -13,8 +13,8 @@ def convertidor_xlsm_predictivos_a_xlsx (archivo_xlsm):
 def convertidor_xlsx_predictivos_a_csv (archivo_xlsx):    
     documento_base = pd.read_excel(archivo_xlsx, sheet_name= None)
     ## definir las hojas a eliminar
-    del documento_base['PREDICT'], documento_base['GRAFICAS Kwh-Bbl'], documento_base['BACKLOG 2022'], documento_base['PROTECCIONES MURPHY'], documento_base['Medida Fondo'], documento_base['VERSION SOFTWARE'], documento_base['PLAN DE ACCION EVACUADAS'], documento_base['Sheet2'],
-    
+    del documento_base['PREDICT'], documento_base['GRAFICAS Kwh-Bbl'], documento_base['BACKLOG 2022'], documento_base['PROTECCIONES Y TIEMPOS VSD'], documento_base['PROTECCIONES MURPHY'], documento_base['Medida Fondo'], documento_base['VERSION SOFTWARE'], documento_base['PLAN DE ACCION EVACUADAS'], documento_base['Sheet2'],
+    # print(type(documento_base))
     for key, hoja in documento_base.items():
         if key == 'CNG-05':
             hoja.drop([1], inplace=True)
@@ -24,7 +24,7 @@ def convertidor_xlsx_predictivos_a_csv (archivo_xlsx):
         for mal_fecha in hoja['FECHA']:
             if mal_fecha == '':
                 hoja.dropna(thresh=1, inplace= True)
-    print(documento_base)
+    
     columnas = ['WELL','FECHA', 'FRECUENCIA', '% THD-VOL IN VSD', '% THD-AMP IN VSD',
         'PF IN VSD', '% THD-VOL OUT VSD', '% THD-AMP OUT VSD', 'PF OUT VSD',
         'VOL MTR A', 'VOL MTR B', 'VOL MTR C', 'VOL MTR A-Tierra',
@@ -71,7 +71,7 @@ def convertidor_xlsx_predictivos_a_csv (archivo_xlsx):
     
     valores_a_reemplazar = ['nd','NO', '1211-9', 'fds', '-', 'FDS', 'cñg8d', 'ND', ' - ', '0.86|', 
                             'SIN DATOS', 'sin datos', 'o.45', "299'", 'No lectura', 'No medido', 
-                            'No registra', ' ', '                                       ',]
+                            'No registra', '_', ' ', '                                       ',]
 
     for columna in dataframe1.columns:
         if columna == 'WELL' or columna == 'FECHA':
@@ -88,7 +88,7 @@ def convertidor_xlsx_predictivos_a_csv (archivo_xlsx):
             
         if dataframe1[columna].dtype == 'object':
             dataframe1[columna] = dataframe1[columna].astype(float)
-    print(dataframe1)
+    # print(dataframe1)
     dataframe1.reset_index(drop=False, inplace=True)
     dataframe1.to_csv('datos_predictivos_esp_2.csv')
     return  
