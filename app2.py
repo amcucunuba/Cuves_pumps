@@ -11,7 +11,59 @@ from main_final import data_df
 #importar data
 df = data_df
 first_year_available = df['FECHA'].dt.year.max()
+num_pozos = df['WELL'].nunique()
 df_deptos = pd.read_csv('deptos.csv', delimiter=';', encoding='latin-1')
+# Grafica sunburst 
+bins = [0, 50, 200, 500, float('inf')]
+labels = ['0-50', '51-200', '201-500', '500+']
+
+# Crear una nueva columna 'RED KW Group' que clasifica los valores en los grupos
+df['RED KW Group'] = pd.cut(df['RED KW'], bins=bins, labels=labels, right=False)
+total_value = df['RED KW'].sum()
+
+# Agregar la fila al DataFrame
+df_primeras_filas = df.groupby('WELL').last().reset_index()
+
+df_grafica = df_primeras_filas[['RED KW Group', 'WELL', 'RED KW',]]
+
+df_grafica = df_grafica.dropna()
+total_value = round(df_grafica['RED KW'].sum())
+
+fig = px.sunburst(df_grafica, path=['RED KW Group', 'WELL'], values='RED KW',
+                color_discrete_sequence= px.colors.sequential.Magma_r,
+                branchvalues="total",
+                )
+fig.update_traces(textinfo='label+percent entry')
+
+fig.update_layout(
+                height=500,
+                plot_bgcolor='#1f2c56',
+                paper_bgcolor='#1f2c56',
+                hovermode='closest',
+                title={
+                    'text': 'Electrical performance ',
+                    'y': 0.93,
+                    'x': 0.5,
+                    'xanchor': 'center',
+                    'yanchor': 'top'},
+                titlefont={
+                    'color': 'white',
+                    'size': 20},
+                legend={
+                    'orientation': 'h',
+                    'bgcolor': '#1f2c56',
+                    'xanchor': 'center', 'x':0.8, 'y':-0.1,
+                    'traceorder': 'normal',
+                    },
+                font=dict(
+                    family="sans-serif",
+                    size=10,
+                    color='white'),
+                hoverlabel=dict(font=dict(size=12),),
+                annotations=[dict(text= f'Total' + '<br>' + str(total_value) +' kW', 
+                                   font_size=12, showarrow=False, x=0.5, y=-0.12, xref="paper", yref="paper", align="center")],
+            )
+
 
 # iniciar-crear la app
 app = Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}])
@@ -46,9 +98,17 @@ app.layout = html.Div([
     html.Div([
         html.Div([
         html.Div([
-            html.P('Choose the well',  
+            html.Div([
+            html.P(f'The total number of wells reported is: {num_pozos}',  
                     style={'color': 'white',
-                           'fontSize': 22},
+                           'fontSize': 22,
+                           'margin-top': '20px',
+                           'text-align': 'left'},
+                    ), ], className="create_container1 cinq columns"),
+            html.P('Choose the well ',  
+                    style={'color': 'white',
+                           'fontSize': 22,
+                           'margin-top': '20px'},
                            className = 'drop_down_list_title'
                     ), 
             dcc.Dropdown(options=[{'label': well, 'value': well} for well in df['WELL'].unique()], 
@@ -61,23 +121,25 @@ app.layout = html.Div([
                     ]),
 
             html.Div(id='pandas-output-container-1'),
-                ], className = "title_and_drop_down_list", style={"margin-bottom": "0px"}),
+                ], className = "title_and_drop_down_list", style={"margin-bottom": "10px"}),
 
     html.Div([
         html.Div([
-            html.P(children='Frecuencia',
-                    style={'textAlign': 'center',
-                        'color': 'white',
-                        'fontSize': 18,
-                        'margin-top': '20px'}
-                    ),
             html.P(id='card-container-1-value',
                    style={'textAlign': 'center',
                        'color': '#dd1e35',
                        'fontSize': 30,
-                       'margin-top': '-18px'}
+                       'margin-top': '20px'
+                       }
                    ),
-           ], className="create_container three columns",
+            html.P(children='Frecuencia',
+                    style={'textAlign': 'center',
+                        'color': 'white',
+                        'fontSize': 18,
+                        'margin-top': '-18px'
+                        }
+                    ),
+           ], className="create_container two columns",
         ),
         html.Div([
                 html.P(id='card-container-5-value',
@@ -93,59 +155,56 @@ app.layout = html.Div([
                         'color': 'white',
                         'fontSize': 18}
                     ),
-            ], className="create_container three columns",
+            ], className="create_container two columns",
                  ),
         html.Div([
-            html.P(children='Apparent power',
-                    style={'textAlign': 'center',
-                        'color': 'white',
-                        'fontSize': 18,
-                        'margin-top': '20px'}
-                    ),
-
             html.P(id='card-container-2-value',
                    style={'textAlign': 'center',
                        'color': 'green',
                        'fontSize': 30,
-                       'margin-top': '-18px'}
-                   ),
-            ], className="create_container three columns",
+                        'margin-top': '20px'}
                     ),
-        html.Div([
-            html.P(children='Averge motor voltage',
+            html.P(children='Apparent power',
                     style={'textAlign': 'center',
                         'color': 'white',
-                        'fontSize': 14,
-                        'margin-top': '10px'}
+                        'fontSize': 18,
+                       'margin-top': '-18px'}
+                   ),
+            ], className="create_container two columns",
                     ),
-
+        html.Div([
             html.P(id='card-container-3-value',
                    style={
                        'textAlign': 'center',
                        'color': '#dd611e',
                        'fontSize': 30,
+                        'margin-top': '20px'}
+                    ),
+            html.P(children='Averge motor voltage',
+                    style={'textAlign': 'center',
+                        'color': 'white',
+                        'fontSize': 14,
                        'margin-top': '-18px'}
                    ),
-        ], className="create_container three columns",
+        ], className="create_container two columns",
                     ),
 
         html.Div([
-            html.P(children='Motor current',
-                    style={
-                        'textAlign': 'center',
-                        'color': 'white',
-                        'fontSize': 18,
-                        'margin-top': '20px'}
-                    ),
-
             html.P(id='card-container-4-value',
                    style={
                        'textAlign': 'center',
                        'color': '#e55467',
                        'fontSize': 30, 
+                        'margin-top': '20px'}
+                    ),
+            html.P(children='Motor current',
+                    style={
+                        'textAlign': 'center',
+                        'color': 'white',
+                        'fontSize': 18,
                        'margin-top': '-18px'}
                    ),
-            ], className="create_container three columns",
+            ], className="create_container two columns",
                  ),
                ],className="row flex-display", style={"margin-bottom": "5px"}),
 
@@ -168,16 +227,17 @@ app.layout = html.Div([
 
     html.Div([ 
             html.Div([
-                     html.P('Ultimate well power',
+                     html.P('Latest well power',
                    style = {'color': 'white',
-                            'fontSize': 22},
+                            'fontSize': 22, 
+                            'margin-top': '20px'},
                    className = 'drop_down_list_title'
                    ),
             dcc.Dropdown(id = 'select_year',
                          multi = False,
                          clearable = True,
                          disabled = False,
-                         style = {'display': 'inline-block','width': '150px'},
+                         style = {'display': 'inline-block','width': '150px', 'margin-top': '0px'},
                          value = first_year_available,
                          placeholder = 'Select year',
                          options = [{'label': year, 'value': year} for year in df['FECHA'].dt.year.unique()],
@@ -199,17 +259,18 @@ app.layout = html.Div([
                     ),
             dcc.RadioItems(id="slct_mode",
                         inline=True,
-                        options=[{'label': 'Active', 'value': 'Act'},
+                        options=[{'label': 'Alls', 'value': 'No_act' + 'Act'},
+                                {'label': 'Active', 'value': 'Act'},
                                 {'label': 'Inactive', 'value': 'No_act'}
                                 ],
-                        value= 'Act',
+                        value= 'No_act' + 'Act',
                         style={'textAlign': 'left',
                         'color': 'white'},
                         className='dcc_compon'
                         ),   
           dcc.Graph(id='my_dept_map', figure={})], className="create_container1 six columns"),
           html.Div([
-                    dcc.Graph(id='pie_chart', figure={}),
+                    dcc.Graph(figure=fig),
                               ], className="create_container1 five columns"),
             ], className="row flex-display"),
 
@@ -241,7 +302,9 @@ app.layout = html.Div([
                     style_data_conditional=[{'if': {'row_index': 'odd'},
                                         'backgroundColor': 'rgb(80, 80, 80)',
                                         }],
-                    columns=[{'name':'WELL', 'id':'WELL'}, {'name':'FECHA', 'id':'FECHA'}, {'name':'FRECUENCIA', 'id':'FRECUENCIA'},
+                    columns=[{'name':'WELL', 'id':'WELL'},
+                            {'name': 'FECHA', 'id': 'FECHA', 'type': 'datetime'},
+                            {'name':'FRECUENCIA', 'id':'FRECUENCIA'},
                             {'name': 'PF IN VSD','id':'PF IN VSD'}, {'name':'PF OUT VSD','id':'PF OUT VSD'}, 
                             {'name': 'VOL MTR A','id':'VOL MTR A'}, {'name': 'VOL MTR B','id': 'VOL MTR B'},
                             {'name': 'VOL MTR C','id':'VOL MTR C'}, {'name':'RED KVA' ,'id':'RED KVA'}, 
@@ -302,7 +365,7 @@ def update_card_container(selected_well, year_range):
 def update_table(selected_well, year_range):
     #Primer filtro del df de acuerdo con el pozo seleccionado 
     filtered_df = df[df['WELL'] == selected_well]
-
+    
     container = "The well chosen by user was: {}".format(selected_well)
     
     #2do. filtro del df de acuerdo con la fecha seleccionada
@@ -310,7 +373,6 @@ def update_table(selected_well, year_range):
 
     # Llamar a la función para actualizar el gráfico
     fig = update_graph_line(filtered_df, selected_well, year_range)
-    
     
     return filtered_df.to_dict('records'), fig, container
 
@@ -418,8 +480,8 @@ def update_graph_line(filtered_df, selected_well, year_range):
     fig.update_layout(
         xaxis=dict(title='Date',
                     color='white',
-                     linecolor='white',
-                   tickfont=dict(
+                    linecolor='white',
+                    tickfont=dict(
                             family='Arial',
                             size=12,
                             color='white'
@@ -569,8 +631,8 @@ def update_graph_line(filtered_df, selected_well, year_range):
                                           size=10,
                                           color='white')
                                    ),
-                    width=1200,
-                    height=400,)
+                    width=1400,
+                    height=500,)
     
     fig.update_xaxes(showgrid=False, showline=True, 
                      linecolor='white', spikecolor="green", spikesnap="cursor", spikemode="across",
@@ -593,9 +655,14 @@ def update_graph_line(filtered_df, selected_well, year_range):
     [Input(component_id='slct_mode', component_property='value')]
 )
 def update_graph(option_slctd):
-    color_mapping = {"Act": "orange","No_act": "grey"}
+    color_mapping = {"Act": "green","No_act": "#bd061c"}
 
-    filtered_df = df_deptos[df_deptos['ACTIVIDAD'] == option_slctd]
+    if option_slctd == 'No_actAct':
+        # Si se selecciona "Alls", mostramos todos los pozos
+        filtered_df = df_deptos
+    else:
+        # Si se selecciona "Active" o "Inactive", filtramos por esa opción
+        filtered_df = df_deptos[df_deptos['ACTIVIDAD'] == option_slctd]
 
     fig = go.Figure(go.Scattermapbox(
         lat=filtered_df['LATITUD'],
@@ -605,7 +672,7 @@ def update_graph(option_slctd):
         hovertext=filtered_df['DEPARTAMENTO'] + '<br>'  + filtered_df['ACTIVIDAD'],
         marker= dict(
             size=20,
-            opacity = 0.8,
+            opacity = 0.7,
             color=[color_mapping[act] for act in filtered_df['ACTIVIDAD']],
             # symbol = 'circle-open',
             autocolorscale=False,
@@ -616,7 +683,7 @@ def update_graph(option_slctd):
 
     fig.update_layout(
             mapbox=dict(
-                center=dict(lat=4.0, lon=-75.5),
+                center=dict(lat=4.5, lon=-74.5),
                 style= 'carto-darkmatter',
                 zoom=4, 
             ) )
@@ -652,10 +719,10 @@ def update_fig_bar(selected_year):
                             ('<b>Well</b>: ' + last_values_df['WELL'].astype(str) + '<br>' +
                             '<b>Red Kw</b>: ' + last_values_df['RED KW'].astype(str) + '<br>'), 
                          width = 0.8,
-                         marker=dict(color='#950808'),
+                         marker=dict(color='#912d2d'),
                          textfont = dict(
                                 family = "sans-serif",
-                                size = 12,
+                                size = 13,
                                 color = 'white'),
                          ), )
     
@@ -703,79 +770,6 @@ def update_fig_bar(selected_year):
                             linecolor = 'white',
                             linewidth = 1,), 
                           )
-
-    return fig
-
-@app.callback(Output(component_id='pie_chart', component_property='figure'),
-            [Input(component_id='select_year', component_property='value')])
-
-def update_pie_chart(selected_year):
-    filtered_df = df[df['FECHA'].dt.year == selected_year]
-
-    last_values_df = filtered_df.groupby('WELL').first().reset_index()
-
-    colors = ['#e55467', 'green', 'orange','#dd1e35' ]
-    # group_1 = last_values_df[last_values_df['RED KW'] < 50]
-    # group_2 = last_values_df[(last_values_df['RED KW'] >= 51) & (last_values_df['RED KW'] <= 200)]
-    # group_3 = last_values_df[(last_values_df['RED KW'] >= 201) & (last_values_df['RED KW'] <= 500)]
-    # group_4 = last_values_df[last_values_df['RED KW'] > 501]
-    # labels = ['0-50', '51-200', '201-500', '500+']
-    # print(group_4['RED KW'])
-    last_values_df['RED KW Group'] = pd.cut(last_values_df['RED KW'], bins=[0, 50, 200, 500, float('inf')], labels=['0-50 kW', '51-200 kW', '201-500 kW', '500+ kW'])
-    
-    # Calcular la suma de cada grupo
-    grouped_data = last_values_df.groupby('RED KW Group')['RED KW'].sum()
-    
-    labels = [f"{label} ({', '.join(names)})" for label, names in zip(grouped_data.index, last_values_df.groupby('RED KW Group')['WELL'].apply(list))]
-
-    total_value = round(last_values_df['RED KW'].sum())
-
-    fig = go.Figure()
-
-    # fig.add_trace(go.Pie(labels= labels,
-    #                      values=[group_1['RED KW'].sum(), group_2['RED KW'].sum(), group_3['RED KW'].sum(), group_4['RED KW'].sum()],
-    #                      marker=dict(colors=colors),
-                        #  name= [group_1['WELL'],group_2['WELL'], group_3['WELL'], group_4['WELL']], 
-    fig.add_trace(go.Pie(
-                        labels=labels,
-                        values=grouped_data.values,
-                        marker=dict(colors=colors),
-                        hoverinfo='label+percent+value',
-                        textinfo='value+percent',
-                        textfont=dict(size=13),
-                        hole=.4,
-                        rotation=65
-                        ))
-
-    fig.update_layout(
-                # height=500,
-                plot_bgcolor='#1f2c56',
-                paper_bgcolor='#1f2c56',
-                hovermode='closest',
-                title={
-                    'text': 'Electrical performance ' + str((selected_year)),
-                    'y': 0.93,
-                    'x': 0.5,
-                    'xanchor': 'right',
-                    'yanchor': 'top'},
-                titlefont={
-                    'color': 'white',
-                    'size': 20},
-                legend={
-                    'orientation': 'h',
-                    'bgcolor': '#1f2c56',
-                    'xanchor': 'center', 'x':0.8, 'y':-0.1,
-                    'traceorder': 'normal',
-                    },
-                font=dict(
-                    family="sans-serif",
-                    size=4,
-                    color='white'),
-                hoverlabel=dict(font=dict(size=8),),
-                annotations=[dict(text= f'Total' + '<br>' + str(total_value) +' kW', 
-                                   x=0.5, y=0.5, 
-                                   font_size=12, showarrow=False)],
-            )
 
     return fig
 
