@@ -22,7 +22,7 @@ df['RED KW Group'] = pd.cut(df['RED KW'], bins=bins, labels=labels, right=False)
 total_value = df['RED KW'].sum()
 
 # Agregar la fila al DataFrame
-df_primeras_filas = df.groupby('WELL').last().reset_index()
+df_primeras_filas = df.groupby('WELL').first().reset_index()
 
 df_grafica = df_primeras_filas[['RED KW Group', 'WELL', 'RED KW',]]
 
@@ -30,13 +30,14 @@ df_grafica = df_grafica.dropna()
 total_value = round(df_grafica['RED KW'].sum())
 
 fig = px.sunburst(df_grafica, path=['RED KW Group', 'WELL'], values='RED KW',
-                color_discrete_sequence= px.colors.sequential.Magma_r,
+                color_discrete_sequence= px.colors.diverging.Spectral,
                 branchvalues="total",
                 )
-fig.update_traces(textinfo='label+percent entry')
+fig.update_traces(textinfo='label+percent entry+value')
 
 fig.update_layout(
                 height=500,
+                width=500,
                 plot_bgcolor='#1f2c56',
                 paper_bgcolor='#1f2c56',
                 hovermode='closest',
@@ -48,7 +49,7 @@ fig.update_layout(
                     'yanchor': 'top'},
                 titlefont={
                     'color': 'white',
-                    'size': 20},
+                    'size': 22},
                 legend={
                     'orientation': 'h',
                     'bgcolor': '#1f2c56',
@@ -57,11 +58,11 @@ fig.update_layout(
                     },
                 font=dict(
                     family="sans-serif",
-                    size=10,
+                    size=14,
                     color='white'),
-                hoverlabel=dict(font=dict(size=12),),
+                hoverlabel=dict(font=dict(size=14),),
                 annotations=[dict(text= f'Total' + '<br>' + str(total_value) +' kW', 
-                                   font_size=12, showarrow=False, x=0.5, y=-0.12, xref="paper", yref="paper", align="center")],
+                                   font_size=16, showarrow=False, x=0.5, y=-0.12, xref="paper", yref="paper", align="center")],
             )
 
 
@@ -225,9 +226,9 @@ app.layout = html.Div([
                 ], className="row flex-display" ),
                 ]),
 
-    html.Div([ 
+    html.Div([
             html.Div([
-                     html.P('Latest well power',
+                    html.P('Latest well power',
                    style = {'color': 'white',
                             'fontSize': 22, 
                             'margin-top': '20px'},
@@ -591,7 +592,6 @@ def update_graph_line(filtered_df, selected_well, year_range):
             titlefont=dict( color="#f9dd04"
                                ),
             tickfont=dict(color="#f9dd04"),
-            domain=[0.5, 0.75]
             ),
         yaxis11=dict(
             title="% LOAD MTR",
@@ -631,7 +631,7 @@ def update_graph_line(filtered_df, selected_well, year_range):
                                           size=10,
                                           color='white')
                                    ),
-                    width=1400,
+                    width=1250,
                     height=500,)
     
     fig.update_xaxes(showgrid=False, showline=True, 
