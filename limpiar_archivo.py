@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from datetime import datetime
 from openpyxl import load_workbook
 
@@ -21,10 +22,9 @@ def convertidor_xlsx_predictivos_a_csv (archivo_xlsx):
         hoja.drop([0], inplace= True) #elimina la primera fila de datos
         hoja.insert(0, 'WELL', value= key)#insertar la columna con el nombre de cada pozo
         hoja.bfill(inplace=True) #rellenar los datos vacios con el numero anterior.
-        for mal_fecha in hoja['FECHA']:
-            if mal_fecha == '':
-                hoja.dropna(thresh=1, inplace= True)
+        hoja.dropna(subset=['FECHA'], inplace=True)
     
+    print(documento_base['JRD-05'])
     columnas = ['WELL','FECHA', 'FRECUENCIA', '% THD-VOL IN VSD', '% THD-AMP IN VSD',
         'PF IN VSD', '% THD-VOL OUT VSD', '% THD-AMP OUT VSD', 'PF OUT VSD',
         'VOL MTR A', 'VOL MTR B', 'VOL MTR C', 'VOL MTR A-Tierra',
@@ -36,8 +36,7 @@ def convertidor_xlsx_predictivos_a_csv (archivo_xlsx):
         'VOL-C CON D', 'AMP-C CON D', '%THD VOL CON D', '%THD AMP CON D',
         'P.F. CON D', 'VOL-A CON Y', 'AMP-A CON Y', 'VOL-B CON Y',
         'AMP-B CON Y', 'VOL-C CON Y', 'AMP-C CON Y', '%THD VOL CON Y',
-        '%THD AMP CON Y', 'P.F. CON Y', 'PIP (psi)', 'T Motor (F)', 'BFPD',
-        'KW-BBL']
+        '%THD AMP CON Y', 'P.F. CON Y', 'PIP (psi)', 'T Motor (F)']
 
     for key, hoja in documento_base.items():
         if (col in hoja.columns for col in columnas):
@@ -60,7 +59,8 @@ def convertidor_xlsx_predictivos_a_csv (archivo_xlsx):
     # Crear un dataframe a partir de lista de dataframes
     dataframe1 = pd.concat(info_list, axis=0, ignore_index=True )
     # eliminar las filas vacias si hay mas de 3 
-    dataframe1= dataframe1.dropna(thresh=3)
+    dataframe1= dataframe1.dropna(thresh=4)
+    print (dataframe1.iloc[1280:1330, :])
 
     dataframe1.set_index('FECHA', inplace=True)
     fechas_incorrectas = ['nd','19-11-22']
@@ -68,7 +68,7 @@ def convertidor_xlsx_predictivos_a_csv (archivo_xlsx):
 
     valor_a_eliminar = 'DESPUES DE INGRESAR LOS PRIMEROS DATOS BORRAR LAS CELDAS EN AMARILLO CON DELETE CELLS Y UP'
     dataframe1 = dataframe1[dataframe1['FRECUENCIA'] != valor_a_eliminar]
-    
+    dataframe1.to_csv('datos_predictivos_esp_prueve.csv')
     valores_a_reemplazar = ['nd','NO', '1211-9', 'fds', '-', 'FDS', 'cñg8d', 'ND', ' - ', '0.86|', 
                             'SIN DATOS', 'sin datos', 'o.45', "299'", 'No lectura', 'No medido', 
                             'No registra', '_', ' ', '                                       ',]
@@ -82,15 +82,15 @@ def convertidor_xlsx_predictivos_a_csv (archivo_xlsx):
                 # Reemplazar comas por puntos
                 valor = valor.replace(',', '.')
                 # Reemplazar "nd" por NaN
-            if valor in valores_a_reemplazar:
-                valor = 'NaN'
-            dataframe1.at[indice, columna] = float(valor)
+    
+    dataframe1.replace(valores_a_reemplazar, np.nan, inplace=True)
             
-        if dataframe1[columna].dtype == 'object':
-            dataframe1[columna] = dataframe1[columna].astype(float)
+    dataframe1 = dataframe1.apply(pd.to_numeric, errors='ignore')
+    
     # print(dataframe1)
     dataframe1.reset_index(drop=False, inplace=True)
     dataframe1.to_csv('datos_predictivos_esp_2.csv')
+    print (dataframe1.iloc[1280:1330, :])
     return  
 
 
@@ -99,3 +99,4 @@ if __name__ == '__main__' :
     # print(type(convertidor_xlsm_predictivos_a_xlsx ('PREDIC_SET.xlsm')))
     # convertidor_xlsm_predictivos_a_xlsx ('PREDIC_SET_2.xlsm')
     convertidor_xlsx_predictivos_a_csv ('archivo_2.xlsx')
+    print('listo')

@@ -97,15 +97,27 @@ app.layout = html.Div([
             ],id="header", className="row flex-display", style={"margin-bottom": "0px"}),
 
     html.Div([
-        html.Div([
-        html.Div([
             html.Div([
             html.P(f'The total number of wells reported is: {num_pozos}',  
                     style={'color': 'white',
                            'fontSize': 22,
                            'margin-top': '20px',
                            'text-align': 'left'},
-                    ), ], className="create_container1 cinq columns"),
+                    ),
+                dcc.RangeSlider(
+                    max=df['FECHA'].max().year,
+                    step=None,
+                    id='fecha_slider',
+                    marks={str(year): str(year) for year in range(df['FECHA'].min().year, df['FECHA'].max().year + 1)},
+                    value=[df['FECHA'].min().year, df['FECHA'].max().year],
+                    min=df['FECHA'].min().year,
+                    ),
+                dcc.Graph(id='visitas-chart', config={'displayModeBar': False}),
+                ],className= 'create_container1 five columns' ), 
+
+    html.Div([
+        html.Div([
+        html.Div([
             html.P('Choose the well ',  
                     style={'color': 'white',
                            'fontSize': 22,
@@ -120,6 +132,7 @@ app.layout = html.Div([
                         className= 'drop_down_list'),], 
                         className = 'title_drop_down_list'),
                     ]),
+                ]),
 
             html.Div(id='pandas-output-container-1'),
                 ], className = "title_and_drop_down_list", style={"margin-bottom": "10px"}),
@@ -322,6 +335,57 @@ app.layout = html.Div([
     ], id="mainContainer",
     style={"display": "flex", "flex-direction": "column"})
 
+@app.callback(
+    Output('visitas-chart', 'figure'),
+    [Input('fecha_slider', 'value'),
+     ]
+)
+def update_chart(year_range):
+    filtered_df = df[(df['FECHA'].dt.year >= year_range[0]) & (df['FECHA'].dt.year <= year_range[1])]
+    fig = go.Figure()
+
+    for well in filtered_df['WELL'].unique():
+        well_data = filtered_df[filtered_df['WELL'] == well]
+        #color = well_data['WELL']  # Ciclar entre los colores
+
+
+        fig.add_trace(go.Scatter(
+            x=well_data['FECHA'],
+            y=[well] * len(well_data),
+            mode='markers', 
+            marker=dict(symbol="square", size=5),
+            name=well
+        ))
+
+    fig.update_layout(
+        title=f'Record of last well visits',
+        showlegend=True,
+        height=1500,
+        plot_bgcolor='#1f2c56',
+        paper_bgcolor='#1f2c56',  # Establecer el fondo sin color
+        titlefont={'color': 'white',
+                        'size': 18, },
+        legend= dict(font=dict(family="sans-serif",
+                        size=10,
+                        color='white')),
+        xaxis=dict(
+            side='top',  # Colocar el eje x en la parte superior
+            showgrid=True,
+            zeroline=True,
+            showline=True,
+            showticklabels=True,
+            tickfont=dict(
+                           family='Arial',
+                           size=10,
+                           color= 'white')),)
+    fig.update_yaxes(categoryorder='total ascending',
+                 tickfont=dict(
+                           family='Arial',
+                           size=10,
+                           color= 'white'),
+                            )
+
+    return fig
 
 @app.callback(
     [Output('card-container-1-value', 'children'),
@@ -339,7 +403,7 @@ def update_card_container(selected_well, year_range):
     #2do. filtro del df de acuerdo con la fecha seleccionada
     filtered_df = filtered_df[(filtered_df['FECHA'].dt.year >= year_range[0]) & (filtered_df['FECHA'].dt.year <= year_range[1])]
     
-    avg_frecuencia = filtered_df['FRECUENCIA'].iloc[0]
+    avg_frecuencia = float(filtered_df['FRECUENCIA'].iloc[0])
     card_content_1_value = [html.P(f"{avg_frecuencia:,.0f} Hz")]
 
     avg_red_kw= filtered_df['RED KW'].iloc[0]
@@ -631,7 +695,7 @@ def update_graph_line(filtered_df, selected_well, year_range):
                                           size=10,
                                           color='white')
                                    ),
-                    width=1250,
+                    width=1200,
                     height=500,)
     
     fig.update_xaxes(showgrid=False, showline=True, 
