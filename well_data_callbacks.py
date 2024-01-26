@@ -16,9 +16,9 @@ def register_well_data_callbacks(app):
     Output('card-container-3-value', 'children'),
     Output('card-container-4-value', 'children'),
     Output('card-container-5-value', 'children'),
-    Output(component_id='data-table', component_property= 'data'),
-    Output(component_id='graph', component_property= 'figure'),
-    Output(component_id='output_container', component_property='children'),
+    Output('data-table', 'data'),
+    Output('graph', 'figure'),
+    Output('output_container','children'),
     Input('pandas-dropdown-1','value'),
     Input('FECHA--slider', 'value')
      )
@@ -324,7 +324,7 @@ def register_well_data_callbacks(app):
                         height=500,)
         
         fig.update_xaxes(showgrid=False, showline=True, 
-                        linecolor='white', spikecolor="green", spikesnap="cursor", spikemode="across",
+                        linecolor='white', spikecolor="green", spikesnap="cursor", spikemode="across", spikethickness=1,
                         side="bottom", showspikes=True,
                         tickfont=dict(
                             family='Arial',
@@ -332,7 +332,7 @@ def register_well_data_callbacks(app):
 
         fig.update_yaxes(showgrid=False, showline=True, 
                         linecolor='white', mirror=True, 
-                        showspikes=True, spikecolor="red", spikethickness=2, 
+                        showspikes=True, spikecolor="red", spikethickness=1, 
                         tickfont=dict(
                             family='Arial',
                             size=10,))

@@ -12,6 +12,8 @@ num_pozos = df['WELL'].nunique()
 first_year_available = df['FECHA'].dt.year.max()
 df_deptos = pd.read_csv('deptos.csv', delimiter=';', encoding='latin-1')
 
+app = Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}],suppress_callback_exceptions=True)
+
 # Grafica sunburst 
 bins = [0, 50, 200, 500, float('inf')]
 labels = ['0-50', '51-200', '201-500', '500+']
@@ -26,22 +28,27 @@ df_primeras_filas = df.groupby('WELL').first().reset_index()
 df_grafica = df_primeras_filas[['RED KW Group', 'WELL', 'RED KW',]]
 
 df_grafica = df_grafica.dropna()
+count_per_group = df_grafica.groupby('RED KW Group')['WELL'].count().reset_index()
+count_per_group.columns = ['RED KW Group', 'Pozo_Count']
+
+# Fusiona la cuenta de pozos con tu DataFrame original
+df_grafica = pd.merge(df_grafica, count_per_group, on='RED KW Group')
 total_value = round(df_grafica['RED KW'].sum())
 
-fig = px.sunburst(df_grafica, path=['RED KW Group', 'WELL'], values='RED KW',
+fig_sun = px.sunburst(df_grafica, path=['RED KW Group', 'WELL'], values='RED KW',
                 color_discrete_sequence= px.colors.diverging.Spectral,
                 branchvalues="total",
                 )
-fig.update_traces(textinfo='label+percent entry+value')
+fig_sun.update_traces(textinfo='label+percent entry+value')
 
-fig.update_layout(
+fig_sun.update_layout(
                 height=500,
                 width=500,
                 plot_bgcolor='#1f2c56',
                 paper_bgcolor='#1f2c56',
                 hovermode='closest',
                 title={
-                    'text': 'Electrical performance ',
+                    'text': 'Last record of each well',
                     'y': 0.93,
                     'x': 0.5,
                     'xanchor': 'center',
@@ -61,23 +68,23 @@ fig.update_layout(
                     color='white'),
                 hoverlabel=dict(font=dict(size=14),),
                 annotations=[dict(text= f'Total' + '<br>' + str(total_value) +' kW', 
-                                   font_size=16, showarrow=False, x=0.5, y=-0.12, xref="paper", yref="paper", align="center")],
+                                font_size=16, showarrow=False, x=0.5, y=-0.12, xref="paper", yref="paper", align="center")],
             )
-app = Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}], suppress_callback_exceptions=True)
 
 general_data_layout = html.Div([
-    html.H2('General data',  style={'color': 'white',
+    html.H2('General data',  
+            style={'color': 'white',
+                           'margin-top': '10px',
+                           }),
+    html.P(f'The total number of wells reported is: {num_pozos}',  
+            style={'color': 'white',
                            'fontSize': 22,
-                           'margin-top': '20px',
-                           'text-align': 'left'}), 
+                           'margin-top': '0px',
+                           'text-align': 'left'},
+                    ), 
     html.Div([
             html.Div([
-            html.P(f'The total number of wells reported is: {num_pozos}',  
-                    style={'color': 'white',
-                           'fontSize': 20,
-                           'margin-top': '20px',
-                           'text-align': 'left'},
-                    ),
+            
                 dcc.RangeSlider(
                     max=df['FECHA'].max().year,
                     step=None,
@@ -88,7 +95,8 @@ general_data_layout = html.Div([
                     ),
                 dcc.Graph(id='visitas-chart', config={'displayModeBar': False}, figure={}),
                 ],className= 'create_container1 twelve columns' ), ]),
-        html.Div([
+
+            html.Div([
             html.Div([
                     html.P('Latest well power',
                    style = {'color': 'white',
@@ -108,9 +116,9 @@ general_data_layout = html.Div([
                      ], className = 'title_drop_down_list'),
                      dcc.Graph(id='stack_bar_chart', figure={}, config = {'displayModeBar': False})
                 ], className = "create_container1 twelve columns"),
-
-    html.Div([ 
-        html.Div([
+html.Div([ 
+            html.Div([ 
+                html.Div([
                 html.H6(children='Well location',
                     style={'textAlign': 'left',
                         'color': 'white'}
@@ -120,7 +128,7 @@ general_data_layout = html.Div([
                         'color': 'white',
                         'margin':0}
                     ),
-            dcc.RadioItems(id="slct_mode",
+                dcc.RadioItems(id='option_slctd',
                         inline=True,
                         options=[{'label': 'Alls', 'value': 'No_act' + 'Act'},
                                 {'label': 'Active', 'value': 'Act'},
@@ -131,10 +139,16 @@ general_data_layout = html.Div([
                         'color': 'white'},
                         className='dcc_compon'
                         ),   
-          dcc.Graph(id='my_dept_map', figure={})], className="create_container1 six columns"),
-          html.Div([
-                    dcc.Graph(figure=fig),
-                              ], className="create_container1 five columns"),
-            ], className="row flex-display"),
-
+                dcc.Graph(id='my_dept_map', figure={})], className="create_container1 five columns"),
+            html.Div([
+            html.Div([
+                html.H6(children='Electrical performance',
+                    style={'textAlign': 'left',
+                        'color': 'white'}
+                    ),
+                dcc.Graph(figure= fig_sun),
+                ], className="create_container1 five columns"),]),
+            ]),
+    ]),
 ])
+

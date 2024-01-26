@@ -13,13 +13,49 @@ from well_data_callbacks import register_well_data_callbacks
 #importar data
 df = data_df
 first_year_available = df['FECHA'].dt.year.max()
+tabs_styles = {
+    "flex-direction": "row",
+}
+tab_style = {
+    "padding": "2vh",
+    "color": '#AEAEAE',
+    "fontSize": '1.5vw',
+    "backgroundColor": '#1f2c56',
+    'border-bottom': '1px white solid',
+
+}
+
+tab_selected_style = {
+    "fontSize": '1.5vw',
+    "color": '#F4F4F4',
+    "padding": "2vh",
+    'fontWeight': 'bold',
+    "backgroundColor": '#566573',
+    'border-top': '1px white solid',
+    'border-left': '1px white solid',
+    'border-right': '1px white solid',
+    'border-radius': '0px 0px 0px 0px',
+}
+
+tab_selected_style1 = {
+    "fontSize": '1.5vw',
+    "color": '#F4F4F4',
+    "padding": "2vh",
+    'fontWeight': 'bold',
+    "backgroundColor": '#566573',
+    'border-top': '1px white solid',
+    'border-left': '1px white solid',
+    'border-right': '1px white solid',
+    'border-radius': '0px 0px 0px 0px',
+}
+
 tabs_layouts = {
     'tab1': general_data_layout,
     'tab2': well_data_layout,
 }
 
 # iniciar-crear la app
-app = Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}], suppress_callback_exceptions=True)
+app = Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}], suppress_callback_exceptions=True )
 
 # Definir el layout de la app
 app.layout = html.Div([
@@ -51,14 +87,18 @@ app.layout = html.Div([
 
     html.Div([
         dcc.Tabs(id='tabs', value='tab1', children=[
-            dcc.Tab(label='Datos Generales', value='tab1'),
-            dcc.Tab(label='Datos del Pozo', value='tab2'),
-        ]),
+            dcc.Tab(label='General data', 
+                    value='tab1', 
+                    style = tab_style,
+                    selected_style = tab_selected_style,), 
+            dcc.Tab(label="Well's data", 
+                    value='tab2', 
+                    style = tab_style,
+                    selected_style = tab_selected_style,),
+        ], style = tabs_styles,),
         html.Div(id='tabs-content'),
     ])
 ])
-html.Div(id='general-data-content')
-html.Div(id='some-input', style={'display': 'none'})
 # Registro de los callbacks
 register_general_data_callbacks(app)
 register_well_data_callbacks(app)
