@@ -14,5 +14,3 @@ RUN pip install -r requirements.txt
 
 # Define el punto de entrada para el contenedor
 CMD ["python", "esp_app/app_esp.py", "runserver", "0.0.0.0:8000"]
-
-docker build -t mi_app_dash:v1.0 .
