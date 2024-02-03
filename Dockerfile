@@ -12,6 +12,6 @@ COPY ./requirements.txt /app/
 # Copia el archivo de requisitos e instala las dependencias
 COPY requirements.txt /app/
 RUN pip install -r requirements.txt
-RUN python install 
+
 # Define el punto de entrada para el contenedor
 CMD ["python", "esp_app/app_esp.py", "runserver", "0.0.0.0:8000"]
