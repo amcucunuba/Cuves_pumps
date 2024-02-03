@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Copia los archivos de la aplicación al directorio de trabajo
 COPY ./esp_app /app/esp_app
-COPY ./assets /app/assets
+COPY ./esp_app/assets /app/assets
 COPY ./requirements.txt /app/
 
 # Copia el archivo de requisitos e instala las dependencias
