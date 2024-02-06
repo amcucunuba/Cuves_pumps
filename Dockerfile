@@ -4,6 +4,7 @@ FROM python:3.9
 RUN apt-get update
 RUN apt-get install nano
 
+
 # Establece el directorio de trabajo en el contenedor
 RUN mkdir wd
 WORKDIR /app/
@@ -15,7 +16,8 @@ RUN pip3 install -r requirements.txt
 # Añade la instalación de Pandas
 RUN pip3 install pandas 
 
-CMD [ "gunicorn", "--workers=5", "--threads=1", "-b 0.0.0.0:80", "app:server"]
+
+CMD [ "gunicorn", "--workers=5", "--threads=1", "-b 0.0.0.0:80", "app=app_esp.esp_app" ]
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
