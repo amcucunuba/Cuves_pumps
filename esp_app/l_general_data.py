@@ -35,9 +35,10 @@ count_per_group.columns = ['RED KW Group', 'Pozo_Count']
 df_grafica = pd.merge(df_grafica, count_per_group, on='RED KW Group')
 total_value = round(df_grafica['RED KW'].sum())
 
-fig_sun = px.sunburst(df_grafica, path=['RED KW Group', 'WELL'], values='RED KW',
+fig_sun = px.sunburst(df_grafica, path=['RED KW Group','Pozo_Count', 'WELL'], values='RED KW',
                 color_discrete_sequence= px.colors.diverging.Spectral,
                 branchvalues="total",
+                maxdepth=2,
                 )
 fig_sun.update_traces(textinfo='label+percent entry+value')
 
@@ -70,6 +71,7 @@ fig_sun.update_layout(
                 annotations=[dict(text= f'Total' + '<br>' + str(total_value) +' kW', 
                                 font_size=16, showarrow=False, x=0.5, y=-0.12, xref="paper", yref="paper", align="center")],
             )
+fig_sun.update_traces(hovertemplate='RED KW Group: %{id}<br>WELL: %{label}<br>Red kW: %{value}<br>', selector=dict(type='sunburst'))
 
 general_data_layout = html.Div([
     html.H2('General data',  
