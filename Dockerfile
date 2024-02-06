@@ -1,18 +1,21 @@
 # Usa la imagen oficial de Python como imagen base
-FROM python:3.9.6
+FROM python:3.9
+
+RUN apt-get update
+RUN apt-get install nano
 
 # Establece el directorio de trabajo en el contenedor
-WORKDIR /app
-
-# Copia los archivos de la aplicación al directorio de trabajo
+RUN mkdir wd
+WORKDIR /app/
 COPY ./esp_app /app/esp_app
 COPY ./esp_app/assets /app/assets
-COPY ./requirements.txt /app/
+COPY requirements.txt .
+RUN pip3 install -r requirements.txt
 
-# Copia el archivo de requisitos e instala las dependencias
-COPY requirements.txt /app/
-RUN pip install -r requirements.txt
+# Añade la instalación de Pandas
+RUN pip3 install pandas 
 
-# Define el punto de entrada para el contenedor
-CMD ["python", "esp_app/app_esp.py", "runserver", "0.0.0.0:8000"]
+CMD [ "gunicorn", "--workers=5", "--threads=1", "-b 0.0.0.0:80", "app:server"]
+
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 

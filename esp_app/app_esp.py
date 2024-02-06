@@ -1,10 +1,16 @@
-from dash import Dash, html, dash_table, callback, Output, Input
+from dash import Dash 
+from dash import html 
+from dash import dash_table 
+from dash import callback
+from dash import Output
+from dash import Input
 from dash import dcc
 import pandas as pd
 from datetime import datetime
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.subplots as sp
+from flask import Flask
 from main_final import data_df
 from l_general_data import general_data_layout
 from l_well_data import well_data_layout
@@ -55,8 +61,9 @@ tabs_layouts = {
 }
 
 # iniciar-crear la app
+server = Flask(__name__)
 app = Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}], suppress_callback_exceptions=True )
-
+app.tittle = 'Esp_app'
 # Definir el layout de la app
 app.layout = html.Div([
     html.Div([
@@ -113,4 +120,4 @@ def update_tab_content(selected_tab):
 
 # Ejecutar la aplicación si este script es el principal
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True,)
