@@ -3,7 +3,7 @@ FROM python:3.9
 
 RUN apt-get update
 RUN apt-get install nano
-
+RUN apt-get update && apt-get install -y uwsgi
 
 # Establece el directorio de trabajo en el contenedor
 RUN mkdir wd
@@ -17,7 +17,7 @@ RUN pip3 install -r requirements.txt
 RUN pip3 install pandas 
 
 
-CMD [ "gunicorn", "--workers=5", "--threads=1", "-b 0.0.0.0:80", "app=app_esp.esp_app" ]
+CMD [ "uwsgi", "--http=0.0.0.0:80", "--wsgi-file=app.py", "--callable=app_esp" ]
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 

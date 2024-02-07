@@ -1,4 +1,4 @@
-from dash import Dash 
+from dash import dash 
 from dash import html 
 from dash import dash_table 
 from dash import callback
@@ -61,11 +61,11 @@ tabs_layouts = {
 }
 
 # iniciar-crear la app
-server = Flask(__name__)
-app = Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}], suppress_callback_exceptions=True )
-app.tittle = 'Esp_app'
+app = Flask(__name__)
+dash_app = dash.Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}], suppress_callback_exceptions=True )
+dash_app.tittle = 'Esp_app'
 # Definir el layout de la app
-app.layout = html.Div([
+dash_app.layout = html.Div([
     html.Div([
         html.Div([        
             html.Img(src=("assets/Artua-Wall-E-Wall-e.256.png"),
@@ -120,4 +120,4 @@ def update_tab_content(selected_tab):
 
 # Ejecutar la aplicación si este script es el principal
 if __name__ == '__main__':
-    app.run(debug=True,)
+    app.run(host='0.0.0.0', debug=True, port=80)
