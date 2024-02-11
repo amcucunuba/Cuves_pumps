@@ -1,23 +1,22 @@
 # Usa la imagen oficial de Python como imagen base
 FROM python:3.9
 
-RUN apt-get update
-RUN apt-get install nano
-RUN apt-get update && apt-get install -y uwsgi
+
+RUN apt-get update && \
+    apt-get install -y uwsgi
 
 # Establece el directorio de trabajo en el contenedor
-RUN mkdir wd
-WORKDIR /app/
-COPY ./esp_app /app/esp_app
-COPY ./esp_app/assets /app/assets
+WORKDIR /app
+# Copia los archivos de la aplicación
+COPY ./app_flask /app
+COPY ./app_flask/assets /assets
 COPY requirements.txt .
+# Instala las dependencias de Python
 RUN pip3 install -r requirements.txt
 
 # Añade la instalación de Pandas
 RUN pip3 install pandas 
 
+# Configura el comando predeterminado para ejecutar uWSGI con el archivo uwsgi.ini
 
-CMD [ "uwsgi", "--http=0.0.0.0:80", "--wsgi-file=app.py", "--callable=app_esp" ]
-
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
+CMD gunicorn -b 0.0.0.0:80 app:server
