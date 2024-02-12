@@ -12,6 +12,7 @@ COPY ./app_flask /app
 COPY ./app_flask/assets /assets
 COPY requirements.txt .
 # Instala las dependencias de Python
+RUN pip install --upgrade pip
 RUN pip3 install -r requirements.txt
 
 # Añade la instalación de Pandas
