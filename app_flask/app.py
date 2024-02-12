@@ -84,7 +84,7 @@ app.layout = html.Div([
                                                           'text-align': 'center',
                                                           }),
             html.H3("Colombia", style={"margin-top": "0px", 'color': 'white'}),
-            ], className="two-half column", id="title"),
+            ], className="one-half.column", id="title"),
 
         html.Div([
             html.P('Last Updated: ' + str(df['FECHA'].iloc[0].strftime("%B %d, %Y")) + '  00:01 (UTC)',

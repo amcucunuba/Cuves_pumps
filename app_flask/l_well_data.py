@@ -120,7 +120,7 @@ well_data_layout = html.Div([
                     ),
                 ], className="create_container two columns",
                     ),
-                ],className="row flex-display", style={"margin-bottom": "5px"}),
+                ],className="row flex-display"),
     html.Div([    
             html.Div([
                 dcc.Graph(id='graph', className="create_container1 twelve columns"),
