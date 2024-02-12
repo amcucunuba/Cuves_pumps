@@ -1,7 +1,5 @@
 from dash import *
-import dash_html_components as html
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
 from dash import dash_table 
 from dash import callback
 from dash.dependencies import Input, Output
@@ -61,7 +59,7 @@ tabs_layouts = {
 }
 
 # iniciar-crear la app
-app: Dash = dash.Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width initial-scale=1.0"}], 
+app: Dash = dash.Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}], 
                       suppress_callback_exceptions=True, 
                       external_stylesheets=[dbc.themes.BOOTSTRAP] )
 server = app.server
