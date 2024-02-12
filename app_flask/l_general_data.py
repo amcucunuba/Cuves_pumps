@@ -138,7 +138,7 @@ html.Div([
                     ),
                 dcc.RadioItems(id='option_slctd',
                         inline=True,
-                        options=[{'label': 'Alls', 'value': 'No_act' + 'Act'},
+                        options=[{'label': 'All', 'value': 'No_act' + 'Act'},
                                 {'label': 'Active', 'value': 'Act'},
                                 {'label': 'Inactive', 'value': 'No_act'}
                                 ],
