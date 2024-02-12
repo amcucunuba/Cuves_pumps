@@ -1,2 +1,6 @@
 docker build -t dash_app .
 docker run -p 8080:80 dash_app
+docker images
+docker ps
+pip list 
+pip freeze > requirements.txt 
