@@ -18,5 +18,5 @@ RUN pip3 install -r requirements.txt
 RUN pip3 install pandas 
 
 # Configura el comando predeterminado para ejecutar uWSGI con el archivo uwsgi.ini
-
-CMD gunicorn -b 0.0.0.0:80 app:server
+EXPOSE 80
+CMD gunicorn -b 0.0.0.0:80 app:server 
