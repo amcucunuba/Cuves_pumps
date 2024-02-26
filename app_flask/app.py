@@ -8,7 +8,6 @@ from datetime import datetime
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.subplots as sp
-from flask import Flask
 from main_final import data_df
 from l_general_data import general_data_layout
 from l_well_data import well_data_layout
@@ -70,7 +69,7 @@ app.layout = html.Div([
             html.Img(src=("assets/Artua-Wall-E-Wall-e.256.png"),
                       id='corona-image', 
                       style={'width': 'auto', 
-                             'height': '100px', 
+                             'height': '90px', 
                              "margin-bottom": "10px",
                              'align-items': 'right',
                              }
@@ -82,11 +81,11 @@ app.layout = html.Div([
                                                           'text-align': 'center',
                                                           }),
             html.H3("Colombia", style={"margin-top": "0px", 'color': 'white'}),
-            ], className="one-half column", id="title"),
+            ], className="one-third column", id="title"),
 
         html.Div([
-            html.P('Last Updated: ' + str(df['FECHA'].iloc[0].strftime("%B %d, %Y")) + '  00:01 (UTC)',
-                   style={'color': 'orange', "margin-bottom": "0px", 'fontSize': 10}),
+            html.P('Last Updated:   ' + str(df['FECHA'].iloc[0].strftime("%B %d, %Y")) / + '  00:01 (UTC)',
+                   style={'color': 'orange', "margin-bottom": "5px", 'fontSize': 10}),
                    ], className="one-third column", id='title1'),
 
             ], id="header", className="row flex-display", style={"margin-bottom": "0px"}),
@@ -103,8 +102,9 @@ app.layout = html.Div([
                     selected_style = tab_selected_style,),
         ], style = tabs_styles,),
         html.Div(id='tabs-content'),
-    ])
+    ]),
 ])
+
 # Registro de los callbacks
 register_general_data_callbacks(app)
 register_well_data_callbacks(app)

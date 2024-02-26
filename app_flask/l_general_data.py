@@ -13,7 +13,7 @@ from main_final import data_df
 df = data_df
 num_pozos = df['WELL'].nunique()
 first_year_available = df['FECHA'].dt.year.max()
-df_deptos = pd.read_csv('deptos.csv', delimiter=';', encoding='latin-1')
+df_deptos = pd.read_csv('app_flask/deptos.csv', delimiter=';', encoding='latin-1')
 
 app = Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}],suppress_callback_exceptions=True)
 
