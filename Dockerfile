@@ -3,8 +3,9 @@ FROM python:3.9
 
 
 RUN apt-get update && \
-    apt-get install -y uwsgi
-
+    apt-get install -y uwsgi \
+    install waitress
+     
 # Establece el directorio de trabajo en el contenedor
 WORKDIR /app
 # Copia los archivos de la aplicación
