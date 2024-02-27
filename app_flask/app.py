@@ -84,7 +84,8 @@ app.layout = html.Div([
             ], className="one-third column", id="title"),
 
         html.Div([
-            html.P('Last Updated:   ' + str(df['FECHA'].iloc[0].strftime("%B %d, %Y")) / + '  00:01 (UTC)',
+            html.P('Last Updated:   ' + str(df['FECHA'].iloc[0].strftime("%B %d, %Y")) + 
+                   '  00:01 (UTC)',
                    style={'color': 'orange', "margin-bottom": "5px", 'fontSize': 10}),
                    ], className="one-third column", id='title1'),
 
@@ -119,4 +120,4 @@ def update_tab_content(selected_tab):
 
 # Ejecutar la aplicación si este script es el principal
 if __name__ == '__main__':
-    app.run_server(port=8080,debug=False)
+    app.run_server(debug=True, port=8080, use_reloader=False)
