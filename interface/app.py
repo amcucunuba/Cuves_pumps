@@ -8,12 +8,14 @@ from datetime import datetime
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.subplots as sp
-from main_final import data_df
-from l_general_data import general_data_layout
-from l_well_data import well_data_layout
-from general_data_callbacks import register_general_data_callbacks
-from well_data_callbacks import register_well_data_callbacks
-#importar data
+
+from ml_logic.main_final import data_df
+from ml_logic.l_general_data import general_data_layout
+from ml_logic.l_well_data import well_data_layout
+from ml_logic.general_data_callbacks import register_general_data_callbacks
+from ml_logic.well_data_callbacks import register_well_data_callbacks
+
+#import data
 df = data_df
 first_year_available = df['FECHA'].dt.year.max()
 tabs_styles = {
